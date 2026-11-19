@@ -2,9 +2,10 @@
    :alt: VDJ-AQP logo: skull with antibody antlers and peptide chains
    :width: 320px
    :align: center
+   :class: dark-light
 
-VDJ-AQP pipeline
-================
+VDJ-guided Antibody Quantification from Proteomes
+=================================================
 
 Reproducible antibody proteomics–repertoire attribution and simulation.
 

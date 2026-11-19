@@ -2,8 +2,7 @@
 <img alt="VDJ-AQP logo: skull with antibody antlers and peptide chains" src="assets/vdjaqp.png" width="320">
 </p>
 
-<h1 align="center">VDJ-AQP</h1>
-<p align="center">VDJ-guided Antibody Quantification from Proteomes</p>
+<h1 align="center">VDJ-guided Antibody Quantification from Proteomes</h1>
 <p align="center">
 <a href="https://github.com/antigenomics/vdjaqp/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/antigenomics/vdjaqp/actions/workflows/ci.yml/badge.svg?branch=master"></a>
 <a href="https://docs.isalgo.dev/vdjaqp/"><img alt="docs" src="https://github.com/antigenomics/vdjaqp/actions/workflows/docs.yml/badge.svg?branch=master"></a>
