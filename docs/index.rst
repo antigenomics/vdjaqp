@@ -2,6 +2,7 @@
    :alt: VDJ-AQP logo: skull with antibody antlers and peptide chains
    :width: 320px
    :align: center
+   :class: dark-light
 
 VDJ-AQP pipeline
 ================
