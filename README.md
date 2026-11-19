@@ -1,8 +1,6 @@
-<p align="center"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="assets/vdjaqp_dark.svg">
-<source media="(prefers-color-scheme: light)" srcset="assets/vdjaqp_light.svg">
-<img alt="VDJ-AQP — antibody peptides meet receptor repertoires" src="assets/vdjaqp_light.svg" width="760">
-</picture></p>
+<p align="center">
+<img alt="VDJ-AQP logo: skull with antibody antlers and peptide chains" src="assets/vdjaqp.png" width="320">
+</p>
 
 <h1 align="center">VDJ-AQP</h1>
 <p align="center">VDJ-guided Antibody Quantification from Proteomes</p>
