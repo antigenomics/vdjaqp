@@ -104,8 +104,13 @@ def main():
         p.error('report/log already exists; select a new output')
     if not a.project_root.is_dir():
         p.error('project root must exist')
-    if not a.workload_root.resolve().is_relative_to(a.project_root.resolve()):
-        p.error('workload root must be within the measured project')
+    project = a.project_root.resolve()
+    workload = a.workload_root.resolve()
+    external_workload = not workload.is_relative_to(project)
+    if external_workload and project.is_relative_to(workload):
+        p.error('workload root must not contain the measured project')
+    external_log = not (logpath.resolve().is_relative_to(project)
+                        or logpath.resolve().is_relative_to(workload))
     repo=Path(__file__).resolve().parents[1]
     sys.path.insert(0,str(repo))
     from vdjaqp import resolve_cpu_budget
@@ -125,6 +130,8 @@ def main():
         snapshot(os.getpid())
         baseline_disk=allocated(a.project_root)
         initial_workload=allocated(a.workload_root)
+        if external_workload:
+            baseline_disk += initial_workload
     except BaseException as error:
         report = dict(command=command, cpu_budget=budget, exit_code=None,
                       failure='preflight_monitor_error', samples=0,
@@ -160,7 +167,7 @@ def main():
                 elapsed=time.monotonic()-start
                 # Immutable runtimes dominate project files; sample only this
                 # job's output growth, then recheck the whole project at exit.
-                log_bytes=logpath.stat().st_blocks*512
+                log_bytes=0 if logpath.resolve().is_relative_to(workload) else logpath.stat().st_blocks*512
                 peak_disk=max(peak_disk,baseline_disk-initial_workload+allocated(a.workload_root)+log_bytes)
                 if rss>a.rss_limit:failure='summed_rss_limit'
                 elif peak_disk>a.disk_limit:failure='project_disk_limit'
@@ -200,6 +207,10 @@ def main():
     final_disk = None
     try:
         final_disk = allocated(a.project_root)
+        if external_workload:
+            final_disk += allocated(a.workload_root)
+        if external_log:
+            final_disk += logpath.stat().st_blocks*512
     except BaseException as error:
         if monitor_error is None:
             failure = 'monitor_error'
@@ -218,7 +229,7 @@ def main():
                 final_project_allocated_bytes=final_disk,
                 monitor_error=monitor_error,transient_partial_disk_scans=partial_scans,
                 partial_disk_scan_meaning='du ENOENT for vanished descendants only; root remained present and numeric summary retained; partial samples can underestimate concurrent disk use',
-                disk_metric='preflight whole project plus declared workload/log growth; whole project rechecked at exit',
+                disk_metric='project plus disjoint external workload and log; nested workload counted once; roots rechecked at exit',
                 memory_metric='sampled sum of process RSS; shared pages counted per process; not PSS',
                 cpu_metric='sum of ps lifetime CPU percentages; not instantaneous utilization',
                 live_thread_limit=thread_limit)

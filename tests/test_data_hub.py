@@ -44,3 +44,24 @@ def test_dry_run(tmp_path, capsys):
     m = _manifest(tmp_path, [('calibration/model.json', b'{}', 'calibration')])
     assert data_hub.main(['--dry-run', '--manifest', str(m)]) == 0
     assert '1 files' in capsys.readouterr().out
+
+
+def test_bootstrap_and_library_share_portable_root(tmp_path, monkeypatch):
+    import importlib
+    from pathlib import Path
+    from vdjaqp import paths
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv('VDJAQP_DATA', raising=False)
+    destinations = []
+    monkeypatch.setattr(data_hub, 'fetch', lambda groups, dest, revision: destinations.append(dest))
+    try:
+        for configured in (None, '~/vdjaqp-example'):
+            if configured is not None: monkeypatch.setenv('VDJAQP_DATA', configured)
+            importlib.reload(paths)
+            assert data_hub.main([]) == 0
+            expected = Path(configured or 'data').expanduser()
+            assert destinations[-1] == paths.DATA == expected
+            assert paths.GUT == expected/'external'/'gut'
+    finally:
+        monkeypatch.delenv('VDJAQP_DATA', raising=False)
+        importlib.reload(paths)

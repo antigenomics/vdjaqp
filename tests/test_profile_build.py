@@ -1,5 +1,6 @@
 """Resource accounting includes descendants once and excludes unrelated jobs."""
 import importlib.util
+import pytest
 from pathlib import Path
 
 
@@ -91,3 +92,45 @@ def test_monitor_exception_stops_owned_group_and_preserves_report(tmp_path, monk
     assert report['exit_code'] == -15
     assert terminated == [child.pid]
     assert report['transient_partial_disk_scans'] == 0
+
+
+@pytest.mark.parametrize("external", [False, True])
+def test_workload_counts_roots_once_without_siblings(tmp_path, monkeypatch, external):
+    import json
+    import sys
+    import pytest
+    import vdjaqp
+    module = load_monitor()
+    project = tmp_path/'project'; project.mkdir()
+    workload = (tmp_path/'external-work' if external else project)/'output'
+    workload.mkdir(parents=True)
+    sibling = tmp_path/'unrelated'; sibling.mkdir()
+    output = workload.parent/'resource.json'
+    measured = []
+    def allocated(path):
+        path = Path(path).resolve(); measured.append(path)
+        assert path in (project, workload)
+        return ((100 if external else 300) if path == project else 200), False
+    monkeypatch.setattr(module, 'du_allocated', allocated)
+    monkeypatch.setattr(module, 'snapshot', lambda pid: ([], 0))
+    monkeypatch.setattr(vdjaqp, 'resolve_cpu_budget', lambda budget: 1)
+    launched = []
+    class Child:
+        pid = 987654
+        def poll(self): return 0
+    def launch(*args, **kwargs):
+        launched.append(kwargs['cwd']); return Child()
+    monkeypatch.setattr(module.subprocess, 'Popen', launch)
+    arguments = ['profile_build', '--output', str(output), '--project-root', str(project),
+                 '--workload-root', str(workload), '--disk-limit', '400', '--', 'test-command']
+    monkeypatch.setattr(sys, 'argv', arguments)
+    module.main()
+    report = json.loads(output.read_text())
+    assert launched == [project]
+    assert report['failure'] is None
+    assert report['final_project_allocated_bytes'] == 300
+    assert sibling not in measured and tmp_path not in measured
+    output.unlink(); output.with_suffix('.log').unlink(); launched.clear()
+    arguments[arguments.index('400')] = '250'
+    with pytest.raises(SystemExit): module.main()
+    assert launched == []
