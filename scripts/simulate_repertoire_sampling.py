@@ -10,11 +10,10 @@ import json
 import multiprocessing as mp
 from pathlib import Path
 
-import numpy as np
-import polars as pl
 
 
 def draw_library(task):
+    import numpy as np
     counts, depth, replicates, seed = task
     probabilities = np.r_[counts, depth-counts.sum()] / depth
     assert np.all(probabilities >= 0) and np.isclose(probabilities.sum(), 1)
@@ -28,7 +27,12 @@ def main():
     p.add_argument('--output', required=True, type=Path)
     p.add_argument('--replicates', type=int, default=200)
     p.add_argument('--seed', type=int, default=20261116)
+    p.add_argument('--cpus', default='all')
     a = p.parse_args()
+    from vdjaqp import resolve_cpu_budget
+    budget = resolve_cpu_budget(a.cpus)
+    import numpy as np
+    import polars as pl
     if a.replicates < 100:
         p.error('at least 100 replicates are required for the displayed interval')
     a.output.mkdir(parents=True, exist_ok=False)
@@ -38,9 +42,14 @@ def main():
     libraries = processing['input'].to_list()
     counts = np.column_stack([matrix[s].to_numpy() for s in libraries])
     depths = processing['molecule_groups'].to_numpy()
-    # Three coarse independent native draws; no per-identity jobs or nested pool.
-    with mp.get_context('spawn').Pool(min(len(libraries), mp.cpu_count())) as pool:
-        draws = pool.map(draw_library, [(counts[:,i], int(depths[i]), a.replicates, a.seed+i) for i in range(len(libraries))])
+    tasks = [(counts[:, i], int(depths[i]), a.replicates, a.seed+i) for i in range(len(libraries))]
+    workers = min(len(libraries), budget)
+    if workers <= 1:
+        draws = [draw_library(task) for task in tasks]
+    else:
+        # A few coarse independent draws; worker NumPy kernels remain serial.
+        with mp.get_context('spawn').Pool(workers) as pool:
+            draws = pool.map(draw_library, tasks)
     curves, summaries = [], []
     for i, (library, simulated) in enumerate(zip(libraries, draws)):
         observed = np.sort(counts[:,i])[::-1]

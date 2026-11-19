@@ -80,7 +80,15 @@ def sharing_probability(pgen, n_rearrangements: float) -> np.ndarray:
         Probability of at least one independent recurrence, same shape as ``pgen``.
     """
     values = np.asarray(pgen, dtype=np.float64)
-    return -np.expm1(n_rearrangements * np.log1p(-np.clip(values, 0.0, 1.0)))
+    depth = np.asarray(n_rearrangements, dtype=np.float64)
+    if (depth.ndim != 0 or not np.isfinite(depth) or depth < 0
+            or not np.isfinite(values).all() or ((values < 0) | (values > 1)).any()):
+        raise ValueError("probabilities must be finite in [0,1] and depth finite and nonnegative")
+    if depth == 0:
+        return np.zeros_like(values)
+    # Certainty is a valid endpoint; log(0) represents its exact limiting value.
+    with np.errstate(divide="ignore"):
+        return -np.expm1(depth * np.log1p(-values))
 
 
 #: Bases an N addition can take. Terminal deoxynucleotidyl transferase adds

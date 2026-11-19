@@ -200,6 +200,7 @@ def clonotype_table(evidence, clone_ids=None, *, scored: pl.DataFrame | None = N
         m, s = meta[clone_id], by_id[clone_id]
         junction = m["cdr3_seq"]
         templated = p.regions != 6
+        ndn_coverage = p.covered(regions=(6,))
         rows.append({
             "clone_id": clone_id,
             "is_probe": p.is_probe,
@@ -217,7 +218,7 @@ def clonotype_table(evidence, clone_ids=None, *, scored: pl.DataFrame | None = N
             "shm_aa": int(p.shm.sum()),
             "shm_pct": round(100 * p.shm.sum() / max(templated.sum(), 1), 1),
             "n_peptides": p.peptides.height,
-            "ndn_covered_pct": round(100 * p.covered(regions=(6,))),
+            "ndn_covered_pct": round(100 * ndn_coverage) if np.isfinite(ndn_coverage) else None,
             "confirmed_nats": round(float(s["confirmed_nats"]), 2),
             "junction_nats": round(float(s["junction_nats"]), 2),
             "framework_only": bool(s["framework_only"]),

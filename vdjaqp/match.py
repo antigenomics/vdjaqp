@@ -39,7 +39,7 @@ def shipped_budget(length: int) -> int:
 
 
 class PeptideMatcher:
-    """Ungapped (and optionally gapped) substring search of peptides into clonotypes.
+    """Substring search of peptides into clonotypes.
 
     Args:
         clone_ids: Clonotype ids, positionally aligned with ``seqs``.
@@ -53,7 +53,10 @@ class PeptideMatcher:
 
     def __init__(self, clone_ids, seqs, k: int = 4):
         self.clone_ids = list(clone_ids)
-        self._index = seqtree.TextIndex.build(ms_collapse(seqs), "aa", k=k)
+        collapsed = ms_collapse(seqs)
+        if len(self.clone_ids) != len(collapsed):
+            raise ValueError("clone IDs and sequences must have the same length")
+        self._index = seqtree.TextIndex.build(collapsed, "aa", k=k)
         self.k = k
 
     @classmethod
@@ -77,11 +80,10 @@ class PeptideMatcher:
             peptide_seqs: Peptide sequences, not yet collapsed.
             max_subs: Substitution ceiling. Used for all peptides unless
                 ``budget`` is given.
-            max_indels: Insertion/deletion ceiling. Non-zero catches the
-                residue-pair-for-one-residue de novo errors an ungapped search
-                cannot see (``GG``/``N`` and ``GA``/``Q`` are exactly isobaric),
-                but costs per-column mismatch detail, which seqtree does not
-                keep on the gapped path.
+            max_indels: Optional insertion/deletion ceiling. Gapped searches
+                expose native reference spans and ``n_ins``/``n_dels`` counts;
+                placements with indels are search-only until per-column
+                alignment geometry is available for residue scoring.
             budget: Optional ``len -> max_subs`` callable, applied per peptide.
                 Peptides are grouped by budget and each group is one batched
                 call. Pass :func:`shipped_budget` to reproduce the upstream join.
@@ -89,14 +91,15 @@ class PeptideMatcher:
 
         Returns:
             One row per ``(clone_id, peptide_id, start, end, n_subs)`` alignment,
-            plus ``mismatch_positions`` relative to the peptide (empty on the
-            gapped path). Peptides shorter than 6 residues are dropped -- the
+            plus ``mismatch_positions`` relative to the peptide. Peptides shorter than 6 residues are dropped -- the
             index cannot answer them -- and so are any the caller passes with
             characters outside the amino-acid alphabet.
         """
         threads = bounded_threads(threads)
         ids = list(peptide_ids)
         seqs = ms_collapse(peptide_seqs)
+        if len(ids) != len(seqs):
+            raise ValueError("peptide IDs and sequences must have the same length")
         keep = [i for i, s in enumerate(seqs) if len(s) >= MIN_QUERY_LEN]
 
         groups: dict[int, list[int]] = {}
@@ -110,6 +113,8 @@ class PeptideMatcher:
             "start": pl.Int32, "end": pl.Int32, "n_subs": pl.Int16,
             "mismatch_positions": pl.List(pl.Int16),
         }
+        if max_indels:
+            schema.update(n_ins=pl.Int32, n_dels=pl.Int32)
         clone_ids = pl.Series(self.clone_ids, dtype=pl.String)
         for b, idxs in sorted(groups.items()):
             res = self._index.search_batch(
@@ -124,7 +129,7 @@ class PeptideMatcher:
             # Widen before adding lengths; the strict output schema rejects
             # out-of-range coordinates/counts instead of NumPy wrapping them.
             start = arrays["offset"].astype(np.int64)
-            lengths = np.asarray([len(seqs[i]) for i in idxs], dtype=np.int64)
+            lengths = arrays["length"].astype(np.int64)
             mismatches = pa.ListArray.from_arrays(
                 pa.array(arrays["mm_begin"], type=pa.int32()),
                 pa.array(arrays["mm_pos"], type=pa.int16()),
@@ -133,8 +138,9 @@ class PeptideMatcher:
                 "clone_id": clone_ids.gather(arrays["ref_id"]),
                 "peptide_id": pl.Series([ids[i] for i in idxs], dtype=pl.String).gather(query_row),
                 "start": start,
-                "end": start + lengths[query_row],
+                "end": start + lengths,
                 "n_subs": arrays["n_subs"],
                 "mismatch_positions": pl.from_arrow(mismatches),
+                **({name: arrays[name] for name in ("n_ins", "n_dels")} if max_indels else {}),
             }, schema=schema))
         return pl.concat(frames) if frames else pl.DataFrame(schema=schema)
