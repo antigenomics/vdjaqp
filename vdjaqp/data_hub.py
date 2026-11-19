@@ -11,7 +11,7 @@ parameters) is downloaded; larger groups are fetched on request:
     vdjaqp-data --group all
     vdjaqp-data --verify DIR             # re-check sha256 of an existing copy
 
-The dataset is private until publication: run ``hf auth login`` first.
+Access follows the dataset settings; use ``hf auth login`` when required.
 Every downloaded file is verified against the manifest sha256.
 """
 from __future__ import annotations
@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -97,9 +96,10 @@ def fetch(groups, dest: Path, revision: str | None = None, cache: Path | None = 
 
 
 def main(argv=None):
+    from .paths import data_root
     p = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     p.add_argument('--group', nargs='+', default=list(DEFAULT_GROUPS), choices=[*GROUPS, 'all'])
-    p.add_argument('--dest', type=Path, default=Path(os.environ.get('VDJAQP_DATA', 'data')),
+    p.add_argument('--dest', type=Path, default=data_root(),
                    help='destination root (default: $VDJAQP_DATA or ./data)')
     p.add_argument('--revision', help='dataset revision (tag or commit) to pin')
     p.add_argument('--verify', type=Path, metavar='DIR', help='verify an existing copy against MANIFEST.tsv')

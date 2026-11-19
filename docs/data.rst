@@ -51,7 +51,8 @@ Each download is verified against the manifest SHA-256. Pin a dataset commit wit
 Local data storage
 ------------------
 
-``VDJAQP_DATA`` selects the local data root; :mod:`vdjaqp.paths` exposes
+``VDJAQP_DATA`` selects the local data root (default ``./data``, shared with
+``vdjaqp-data``); :mod:`vdjaqp.paths` exposes
 ``DATA``, ``EXTERNAL`` and ``GUT``. Keep raw inputs read-only and retain processing
 receipts with each result. Host-specific storage mappings and scheduler accounts
 belong in private operational records, outside the distributable documentation.

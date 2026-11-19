@@ -1,15 +1,16 @@
-"""Local data roots for the manuscript analyses (``analyses/``).
+"""Portable data roots shared with the ``vdjaqp-data`` bootstrap.
 
-``VDJAQP_DATA`` (default ``~/work/academy/2026/vdjaqp``) is the local workspace; the
-public gut cohorts used in the paper sit in ``$VDJAQP_DATA/external/gut`` with the
-layout of the former ``colitis_igprotseq`` workspace (``delivery/``, ``raw/``,
-``references/``, ``outcome_inventory/``). Processed files are also in the HF dataset
-``isalgo/igprotseq`` (``vdjaqp-data --group external``). Historical receipts keep the
-original absolute paths in the private manuscript records.
+``VDJAQP_DATA`` defaults to ``./data``. The external cohort layout is under
+``$VDJAQP_DATA/external/gut``; see the dataset reference for access and provenance.
 """
 import os
 from pathlib import Path
 
-DATA = Path(os.environ.get('VDJAQP_DATA', '~/work/academy/2026/vdjaqp')).expanduser()
+
+def data_root():
+    return Path(os.environ.get('VDJAQP_DATA', 'data')).expanduser()
+
+
+DATA = data_root()
 EXTERNAL = DATA / 'external'
 GUT = EXTERNAL / 'gut'
