@@ -3,7 +3,7 @@
 # platform: osx-64
 # created-by: conda 26.5.3
 @EXPLICIT
-https://conda.anaconda.org/conda-forge/osx-64/isa-l-2.32.1-ha1e9b39_0.conda
-https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.5-h19cb2f5_0.conda
-https://conda.anaconda.org/conda-forge/osx-64/libdeflate-1.26-hb7db194_0.conda
-https://conda.anaconda.org/bioconda/osx-64/fastp-0.24.0-h9ea9c2a_1.tar.bz2
+https://conda.anaconda.org/conda-forge/osx-64/isa-l-2.32.1-ha1e9b39_0.conda#3657f4c8f0a36473b3863b1be8b311d5
+https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.5-h19cb2f5_0.conda#ce6f5df6b20cc6bc7228f38258df826b
+https://conda.anaconda.org/conda-forge/osx-64/libdeflate-1.26-hb7db194_0.conda#56bf093bccc7c698eee1d8ffccd7aee6
+https://conda.anaconda.org/bioconda/osx-64/fastp-0.24.0-h9ea9c2a_1.tar.bz2#dd868938b832eecd4de1dfac4cfb3160

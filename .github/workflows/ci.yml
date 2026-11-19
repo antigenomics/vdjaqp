@@ -19,7 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
-          python-version-file: .python-version
           enable-cache: true
       - name: Install locked environment
         run: uv sync --extra test --extra docs --extra data --frozen

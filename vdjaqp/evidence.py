@@ -25,7 +25,7 @@ class AlignmentScorer:
                  background: Background | None = None):
         self.error = error_model
         self.background = background or Background(clonotypes)
-        self._clone_index = clonotypes.select("clone_id").with_row_index(
+        self._clone_index = clonotypes.select("clone_id", pl.col("seq").str.len_chars().alias("_reference_length")).with_row_index(
             "clone_row"
         ).with_columns(pl.col("clone_row").cast(pl.Int64))
 
@@ -48,11 +48,14 @@ class AlignmentScorer:
             means the clonotype explains the reading better than the repertoire
             at large does.
         """
+        if any(name in matches.columns and (matches[name].is_null() | matches[name].ne(0)).any()
+               for name in ('n_ins', 'n_dels')):
+            raise ValueError('gapped placements are search-only; residue scoring requires per-column alignment geometry')
         pep_code, pep_offset, pep_length = encode_frame(peptides["seq"])
         pep_conf = np.concatenate(
             [np.asarray(x, dtype=np.float32) for x in peptides["local_confidence"]]
         ) if peptides.height else np.empty(0, dtype=np.float32)
-        pep_index = peptides.select("peptide_id").with_row_index("pep_row")
+        pep_index = peptides.select("peptide_id", pl.col("seq").str.len_chars().alias("_peptide_length")).with_row_index("pep_row")
         is_db = (peptides["search_type"] == "db").to_numpy()
 
         keyed = (
@@ -62,6 +65,11 @@ class AlignmentScorer:
         )
         if keyed["clone_row"].null_count() or keyed["pep_row"].null_count():
             raise ValueError("match frame references unknown clone_id or peptide_id")
+        start, end = pl.col('start').cast(pl.Int64), pl.col('end').cast(pl.Int64)
+        if keyed.select(((start < 0) | (end < start) |
+                         (end-start != pl.col('_peptide_length')) |
+                         (end > pl.col('_reference_length'))).fill_null(True).any()).item():
+            raise ValueError('invalid ungapped placement span or reference bounds')
 
         llr = np.empty(keyed.height, dtype=np.float64)
         components={name:np.empty(keyed.height,dtype=np.float64) for name in
@@ -76,7 +84,7 @@ class AlignmentScorer:
                 for name,array in extra.items():components[name][begin:begin+chunk.height]=array
             llr[begin:begin + chunk.height] = values
         return keyed.sort("_align_row").drop(
-            ["_align_row", "clone_row", "pep_row"]
+            ["_align_row", "clone_row", "pep_row", "_reference_length", "_peptide_length"]
         ).with_columns(llr=pl.Series(llr, dtype=pl.Float64),
                        **{name:pl.Series(array,dtype=pl.Float64) for name,array in components.items()})
 

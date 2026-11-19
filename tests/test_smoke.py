@@ -20,22 +20,22 @@ def test_batched_search_preserves_mass_alphabet_and_empty_schema():
 
 
 def test_search_honors_process_budget_in_one_batch():
-    from vdjaqp.resources import resolve_cpu_budget
-    class Index:
-        calls = []
-        def search_batch(self, queries, **kwargs):
-            self.calls.append((queries, kwargs["threads"]))
-            return empty_result
-    matcher = PeptideMatcher(["clone0"], ["ACDEFGHIKLMNPQRSTVWY"])
-    # Return the pinned native result type, including its flat-array protocol.
-    empty_result = matcher._index.search_batch(
-        ["WWWWWW", "WWWWWW"], max_subs=0, threads=1)
-    index = Index()
-    matcher._index = index
-    try:
-        resolve_cpu_budget(1)
-        matcher.search(["p0", "p1"], ["ACDEFG", "HIKLMN"])
-        assert len(index.calls) == 1
-        assert index.calls[0][1] == 1
-    finally:
-        resolve_cpu_budget()
+    import subprocess
+    import sys
+    code = """
+import vdjaqp
+vdjaqp.resolve_cpu_budget(1)
+from vdjaqp.match import PeptideMatcher
+class Index:
+    calls = []
+    def search_batch(self, queries, **kwargs):
+        self.calls.append((queries, kwargs['threads']))
+        return empty_result
+matcher = PeptideMatcher(['clone0'], ['ACDEFGHIKLMNPQRSTVWY'])
+empty_result = matcher._index.search_batch(['WWWWWW', 'WWWWWW'], max_subs=0, threads=1)
+index = Index()
+matcher._index = index
+matcher.search(['p0','p1'], ['ACDEFG','HIKLMN'])
+assert len(index.calls) == 1 and index.calls[0][1] == 1
+"""
+    subprocess.run([sys.executable, '-c', code], check=True, timeout=30)

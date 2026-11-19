@@ -69,14 +69,21 @@ def mass_prior(composition: np.ndarray | None = None) -> np.ndarray:
 def isotonic(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Monotone non-increasing fit of ``y`` on ``x`` by pool-adjacent-violators.
 
-    Returns the sorted ``x`` breakpoints and the fitted values. Used to map
+    Returns sorted ``x`` and fitted values, retaining one entry per sample.
+    Equal ``x`` values share their sample-count-weighted fit. Used to map
     de novo confidence to an error rate without assuming a functional form:
     error must fall as confidence rises, and nothing more is imposed.
     """
+    x, y = np.asarray(x, dtype=np.float64), np.asarray(y, dtype=np.float64)
+    if (x.ndim != 1 or y.ndim != 1 or not x.size or x.size != y.size
+            or not np.isfinite(x).all() or not np.isfinite(y).all()):
+        raise ValueError("fit inputs must be equal nonempty finite one-dimensional arrays")
     order = np.argsort(x, kind="stable")
-    xs, ys = x[order], y[order].astype(np.float64)
-    values = list(ys)
-    weights = [1.0] * len(ys)
+    xs, ys = x[order], y[order]
+    # Equal confidence has one fitted rate; group counts retain observation weights.
+    starts = np.r_[0, np.flatnonzero(xs[1:] != xs[:-1]) + 1]
+    weights = np.diff(np.r_[starts, len(xs)])
+    values = np.add.reduceat(ys, starts) / weights
     level = []
     for value, weight in zip(values, weights):
         level.append([value, weight])

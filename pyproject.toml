@@ -22,7 +22,7 @@ Issues = "https://github.com/antigenomics/vdjaqp/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
-data = ["huggingface_hub>=0.30"]
+data = ["huggingface_hub>=0.30", "filelock>=4.2.10"]
 docs = ["sphinx==8.2.3", "pydata-sphinx-theme==0.16.1"]
 
 [project.scripts]

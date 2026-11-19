@@ -49,6 +49,14 @@ The toy demonstrates shared and distinguishing peptide evidence using invented
 sequences. Follow the [tutorial](https://docs.isalgo.dev/vdjaqp/tutorial.html) to
 interpret the candidate scores.
 
+Exercise Nextflow without scientific data (both directories must be new):
+
+```sh
+.venv/bin/python workflows/make_fixture.py tmp/example-input
+nextflow run main.nf --samples tmp/example-input/samples.csv --outdir tmp/example-output --cpus 1
+```
+
+The fixture model tests software plumbing only; it is not a scientific calibration.
 For an analysis, prepare candidate and peptide tables using the
 [input/output contracts](https://docs.isalgo.dev/vdjaqp/input-output.html), and
 copy [`workflows/samples.example.csv`](workflows/samples.example.csv):
@@ -116,6 +124,8 @@ the optional pinned runtimes; they do not run scientific datasets in CI.
 `master` is stable; `dev` integrates development. Branch features from `dev` and
 submit pull requests there; promote verified changes from `dev` to `master`.
 The manuscript and its host-specific analysis records remain separately maintained.
+See [contributing](CONTRIBUTING.md) for checks and review, and the repository
+[VDJ-AQP skill](skills/vdjaqp/SKILL.md) for agent API and workflow guidance.
 
 ## Citation and license
 

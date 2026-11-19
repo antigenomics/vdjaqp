@@ -10,3 +10,4 @@ Follow a task from installation and input preparation to workflow execution.
    quickstart
    preparation
    pipeline
+   development

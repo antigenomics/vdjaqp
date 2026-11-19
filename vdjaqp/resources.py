@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from numbers import Integral
 
 __all__ = ["DEFAULT_CPU_BUDGET", "resolve_cpu_budget", "cpu_budget", "bounded_threads"]
@@ -50,6 +51,8 @@ def resolve_cpu_budget(budget: int | str | None = None) -> int:
     Raises:
         ValueError: On a non-positive or unparseable request. Positive requests
             above the available allocation are clamped to that allocation.
+        RuntimeError: If an already initialized Polars pool exceeds the new
+            ceiling. No environment or declared budget is changed on failure.
     """
     global _RESOLVED
     available = _available_cores()
@@ -71,8 +74,23 @@ def resolve_cpu_budget(budget: int | str | None = None) -> int:
         if resolved < 1:
             raise ValueError(f"cpu budget must be >= 1, got {resolved}")
         resolved = min(resolved, available)
+    previous = {name: os.environ.get(name) for name in _THREAD_VARS}
     for name in _THREAD_VARS:
         os.environ[name] = str(resolved)
+    try:
+        polars = sys.modules.get("polars")
+        if polars is not None and polars.thread_pool_size() > resolved:
+            raise RuntimeError(
+                "Polars already has more threads than the requested budget; start a fresh "
+                "process and resolve its CPU budget before importing Polars"
+            )
+    except BaseException:
+        for name, value in previous.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+        raise
     # Keep the small 20-letter background mixing product serial; search/table
     # engines retain the full budget. Avoid idle BLAS teams during native stages.
     for name in ("OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):

@@ -158,6 +158,8 @@ class Background:
         counts = np.zeros((self.n_cells, N_AA), dtype=np.float64)
         np.add.at(counts, (self.cell_id[keep], self.code[keep]), 1.0)
 
+        if not pooled.sum():
+            raise ValueError("background requires at least one canonical residue from a background member")
         pooled /= pooled.sum()
         backoff = self._backoff(counts, pooled)
 

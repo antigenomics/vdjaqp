@@ -133,3 +133,29 @@ def test_pgen_native_call_cannot_exceed_selected_budget(monkeypatch):
     junction_pgen(['CARGGDYW'], threads=100_000)
     assert seen == [1]
     assert os.environ['POLARS_MAX_THREADS'] == '1'
+
+
+def test_late_smaller_budget_cannot_misreport_initialized_polars_pool():
+    code = '''
+import os
+import vdjaqp
+if vdjaqp.resolve_cpu_budget('all') < 2:
+    raise SystemExit(77)
+vdjaqp.resolve_cpu_budget(2)
+import polars as pl
+assert pl.thread_pool_size() == 2
+before = dict(os.environ)
+try:
+    vdjaqp.resolve_cpu_budget(1)
+except RuntimeError as error:
+    assert 'Polars' in str(error) and 'process' in str(error)
+else:
+    raise AssertionError('declared budget shrank while native pool stayed at two')
+assert dict(os.environ) == before
+assert vdjaqp.cpu_budget() == 2
+assert vdjaqp.resolve_cpu_budget(2) == 2
+'''
+    result = subprocess.run([sys.executable, '-c', code], capture_output=True, text=True, timeout=30)
+    if result.returncode == 77:
+        pytest.skip('needs two allocated cores to exercise late shrink')
+    assert result.returncode == 0, result.stderr
