@@ -38,6 +38,14 @@ sequencing geometries and ``.venv/bin/python scripts/build_openms_digest_fix.py`
 for native MS. Recipe READMEs and hash manifests own exact installation steps.
 Do not substitute external repertoire assembly or read mapping for ARDA.
 
+Simulation disk accounting
+--------------------------
+
+Simulation monitors count this checkout and the declared workload directory,
+including an external Nextflow ``-work-dir``. Unrelated sibling repositories are
+excluded; nested workload directories are counted once. CPU, memory and disk
+limits remain explicit. This does not run or revalidate a scientific simulation.
+
 Documentation build
 -------------------
 

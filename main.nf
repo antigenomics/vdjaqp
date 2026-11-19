@@ -24,7 +24,7 @@ process SIMULATE_AIRR {
     script:
     def rssLimit = params.mode == 'joint-airr' ? 8000000000 : 15000000000
     """
-    '${params.python}' '${projectDir}/scripts/profile_build.py' --output "\$PWD/simulation-resources.json" --project-root '${projectDir}/..' --workload-root "\$PWD/simulation" --timeout 1650 --rss-limit ${rssLimit} --disk-limit 10000000000 --cpus ${task.cpus} -- '${params.python}' '${projectDir}/scripts/workflow_simulation.py' --repertoire "\$PWD/${repertoire}" --target-ids "\$PWD/${panel}" --source-format '${params.producer}' --output "\$PWD/simulation" --physical-scope '${params.physical_scope}' --ms2-per-bin ${params.ms2_per_bin} --cpus ${task.cpus}
+    '${params.python}' '${projectDir}/scripts/profile_build.py' --output "\$PWD/simulation-resources.json" --project-root '${projectDir}' --workload-root "\$PWD/simulation" --timeout 1650 --rss-limit ${rssLimit} --disk-limit 10000000000 --cpus ${task.cpus} -- '${params.python}' '${projectDir}/scripts/workflow_simulation.py' --repertoire "\$PWD/${repertoire}" --target-ids "\$PWD/${panel}" --source-format '${params.producer}' --output "\$PWD/simulation" --physical-scope '${params.physical_scope}' --ms2-per-bin ${params.ms2_per_bin} --cpus ${task.cpus}
     """
 }
 
@@ -62,7 +62,7 @@ process POPULATION {
     def rssLimit = params.mode == 'joint' ? 7000000000 : 15000000000
     def referenceArg = params.additional_references ? "--additional-reference-dir '${file(params.additional_references).toAbsolutePath()}'" : ''
     """
-    PYTHONPATH='${params.arda_overlay}' '${params.python}' '${projectDir}/scripts/profile_build.py' --output "\$PWD/population-resources.json" --project-root '${projectDir}/..' --workload-root "\$PWD/population" --timeout 1650 --rss-limit ${rssLimit} --disk-limit 10000000000 --cpus ${task.cpus} -- '${params.python}' '${projectDir}/scripts/workflow_population.py' --output "\$PWD/population" --cpus ${task.cpus} --total-antibodies ${params.antibodies} --memory-fraction ${params.memory_fraction} --pairs-per-chain ${params.pairs_per_chain} --mutation-rate ${params.mutation_rate} --protein-concentration ${params.protein_concentration} --seed ${params.seed} --read-seed ${params.read_seed} --gradient-seconds ${params.gradient_seconds} --ms2-per-bin ${params.ms2_per_bin} --purpose resource-profile --stage-timeout ${params.stage_timeout} ${referenceArg} ${baseArg}
+    PYTHONPATH='${params.arda_overlay}' '${params.python}' '${projectDir}/scripts/profile_build.py' --output "\$PWD/population-resources.json" --project-root '${projectDir}' --workload-root "\$PWD/population" --timeout 1650 --rss-limit ${rssLimit} --disk-limit 10000000000 --cpus ${task.cpus} -- '${params.python}' '${projectDir}/scripts/workflow_population.py' --output "\$PWD/population" --cpus ${task.cpus} --total-antibodies ${params.antibodies} --memory-fraction ${params.memory_fraction} --pairs-per-chain ${params.pairs_per_chain} --mutation-rate ${params.mutation_rate} --protein-concentration ${params.protein_concentration} --seed ${params.seed} --read-seed ${params.read_seed} --gradient-seconds ${params.gradient_seconds} --ms2-per-bin ${params.ms2_per_bin} --purpose resource-profile --stage-timeout ${params.stage_timeout} ${referenceArg} ${baseArg}
     """
 }
 
