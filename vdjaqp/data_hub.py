@@ -77,6 +77,9 @@ def _destination(root: Path, relative: str) -> Path:
     target = root / relative
     if not target.resolve().is_relative_to(root.resolve()):
         raise ValueError('destination path escapes the selected root')
+    lock = root / '.vdjaqp-data.lock'
+    if target.exists() and lock.exists() and target.samefile(lock):
+        raise ValueError('destination aliases the bootstrap lock')
     return target
 
 

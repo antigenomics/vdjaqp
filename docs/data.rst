@@ -23,7 +23,8 @@ Each download is verified against the manifest SHA-256. Pin a dataset commit wit
 immutable dataset commit before fetching the manifest and files. Manifest paths,
 required metadata, sizes and digests are validated before publication.
 
-Writers serialize through a bounded destination lock. Each file is copied to a
+Writers serialize through a bounded destination lock. Destination file identity
+is checked to reject aliases of that lock before publishing any asset. Each file is copied to a
 same-filesystem staging file, verified and atomically replaced; the manifest is
 published last. This is per-file publication, not an atomic multi-file snapshot
 for readers. Finish bootstrap before starting consumers. Concurrent local writers,

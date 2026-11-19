@@ -264,3 +264,33 @@ def test_lock_preserves_inode_and_rejects_symlinks(tmp_path):
         with data_hub._destination_lock(tmp_path):
             pytest.fail('locked symlink')
     assert outside.read_bytes() == b'accepted'
+
+
+@pytest.mark.parametrize('alias_kind', ['directory_symlink', 'hardlink', 'case_alias'])
+def test_fetch_cannot_replace_held_lock_through_alias(tmp_path, monkeypatch, alias_kind):
+    dest = tmp_path/'dest'
+    dest.mkdir()
+    lock = dest/'.vdjaqp-data.lock'
+    lock.touch()
+    identity = lock.stat().st_ino
+    if alias_kind == 'directory_symlink':
+        (dest/'alias').symlink_to(dest, target_is_directory=True)
+        malicious = 'alias/.vdjaqp-data.lock'
+    elif alias_kind == 'hardlink':
+        (dest/'lock-alias').hardlink_to(lock)
+        malicious = 'lock-alias'
+    else:
+        malicious = '.VDJAQP-DATA.LOCK'
+        if not (dest/malicious).exists():
+            pytest.skip('case-sensitive filesystem has no case alias')
+    manifest = _manifest(tmp_path, [('calibration/model.json', b'new', 'calibration'),
+                                     (malicious, b'replacement', 'calibration')])
+    snapshot = tmp_path/'copy'
+    (snapshot/'MANIFEST.tsv').write_bytes(manifest.read_bytes())
+    _fake_hub(monkeypatch, snapshot)
+    with pytest.raises(ValueError, match='bootstrap lock'):
+        data_hub.fetch(['calibration'], dest)
+    assert lock.stat().st_ino == identity
+    assert not (dest/'calibration/model.json').exists()
+    with data_hub._destination_lock(dest, timeout=1):
+        pass
