@@ -4,8 +4,8 @@
    :align: center
    :class: dark-light
 
-VDJ-AQP pipeline
-================
+VDJ-guided Antibody Quantification from Proteomes
+=================================================
 
 Reproducible antibody proteomics–repertoire attribution and simulation.
 
