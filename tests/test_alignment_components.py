@@ -136,3 +136,17 @@ def test_unknown_observation_id_is_rejected_even_for_zero_emission(log_emission)
     components=pl.DataFrame({'clone_id':['a'],'peptide_id':['unknown'],'log_emission':[log_emission]})
     with pytest.raises(ValueError,match='observation metadata'):
         compete_identity_emissions(components,metadata,identities)
+
+
+@pytest.mark.parametrize('start,end', [(-1,5),(1,7),(0,5),(5,0),(None,6)])
+def test_invalid_placement_cannot_read_another_reference(start,end):
+    scorer,matches,peptides=fixture()
+    malformed=matches.with_columns(pl.lit(start,dtype=pl.Int64).alias('start'),
+                                   pl.lit(end).alias('end'))
+    with pytest.raises(ValueError,match='placement span|reference bounds'):
+        scorer.score(malformed,peptides)
+
+
+def test_default_alignment_schema_stays_public():
+    scorer,matches,peptides=fixture()
+    assert scorer.score(matches,peptides).columns==matches.columns+['llr']

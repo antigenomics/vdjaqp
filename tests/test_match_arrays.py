@@ -53,8 +53,9 @@ def test_flat_export_matches_native_hit_objects(indels):
         for query, i in enumerate(indices):
             for hit in native[query]:
                 rows.append((matcher.clone_ids[hit.ref_id], ids[i], hit.offset,
-                             hit.offset + len(seqs[i]), hit.n_subs,
-                             [int(pos) for pos, _, _ in hit.mismatches]))
+                             hit.offset + hit.length, hit.n_subs,
+                             [int(pos) for pos, _, _ in hit.mismatches],
+                             *((hit.n_ins, hit.n_dels) if indels else ())))
     expected = pl.DataFrame(rows, schema=actual.schema, orient='row')
     del native, matcher
     gc.collect()
@@ -84,6 +85,7 @@ def test_flat_export_rejects_out_of_schema_values(field, value):
                 'query_begin': np.array([0, 1], dtype=np.uint32),
                 'ref_id': np.array([0], dtype=np.uint32),
                 'offset': np.array([0], dtype=np.uint32),
+                'length': np.array([9], dtype=np.uint16),
                 'n_subs': np.array([0], dtype=np.uint16),
                 'mm_begin': np.array([0, 0], dtype=np.uint32),
                 'mm_pos': np.array([], dtype=np.uint16),

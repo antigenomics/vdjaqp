@@ -49,9 +49,12 @@ and mismatch arrays through NumPy and Arrow. It preserves native hit order,
 per-observation identifiers, substitution budgets and the existing typed placement
 schema without constructing Python objects for every hit. Identical peptide
 observations remain separate, including their confidence and spectrum metadata.
-The search algorithm, mismatch allowance and evidence scoring are unchanged.
-Optional gapped placement still lacks per-column mismatch evidence and is not
-silently enabled by this export optimization.
+Default ungapped search retains its existing schema and scoring. Optional
+``max_indels`` searches export native reference spans and ``n_ins``/``n_dels``
+counts. ``AlignmentScorer`` rejects placements with indels because residue scoring
+requires per-column alignment geometry. It also rejects unknown identifiers,
+negative or out-of-reference intervals, and ungapped spans unequal to peptide
+length. Coordinates are zero-based, half-open reference intervals.
 
 Performance measurements for this change concern index construction, search and
 placement-table materialization. They do not measure end-to-end workflow speed,

@@ -392,7 +392,7 @@ def compare_case(bundle,geometry,truth_paths,generation_path,output,threads,*,pa
         (dest/'junction_truth_scope.json').write_text(json.dumps(junction_report,indent=2)+'\n')
         model=ErrorModel(np.array([0.,1.]),np.array([.1,.01]),mass_prior(),n_substitutions=0,e_db=_E_DB_DEFAULT)
         ev=Evidence.from_frames(candidates,peptides,error_model=model)
-        scores=ev.score(aggregation=mode);baseline_scores=ev.score(aggregation='alignment_union');scores.write_parquet(dest/'scores.parquet',compression='zstd')
+        scores=ev.score(aggregation=mode);baseline_scores=scores if mode=='alignment_union' else ev.score(aggregation='alignment_union');scores.write_parquet(dest/'scores.parquet',compression='zstd')
         call_index=spectrum_key(peptides).select('peptide_id','spectrum_id','alc','alc_rank','n_reads')
         keyed=ev.alignments.join(call_index,on='peptide_id',validate='m:1')
         gamma=ClonotypeScorer._responsibility(keyed)

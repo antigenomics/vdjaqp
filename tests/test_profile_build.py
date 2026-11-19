@@ -134,3 +134,59 @@ def test_workload_counts_roots_once_without_siblings(tmp_path, monkeypatch, exte
     arguments[arguments.index('400')] = '250'
     with pytest.raises(SystemExit): module.main()
     assert launched == []
+
+
+@pytest.mark.parametrize('timeout', ['nan', 'inf', '-inf'])
+def test_nonfinite_timeout_rejected_before_monitoring(tmp_path, monkeypatch, timeout):
+    import sys
+    import vdjaqp
+    module = load_monitor()
+    output = tmp_path/'report.json'
+    monkeypatch.setattr(sys, 'argv', ['profile_build', '--output', str(output),
+        '--project-root', str(tmp_path), '--workload-root', str(tmp_path/'work'),
+        '--timeout='+timeout, '--', 'unused-command'])
+    monkeypatch.setattr(vdjaqp, 'resolve_cpu_budget', lambda budget: 1)
+    monkeypatch.setattr(module, 'snapshot', lambda pid: pytest.fail('monitoring started'))
+    with pytest.raises(SystemExit) as error:
+        module.main()
+    assert error.value.code == 2
+    assert not output.exists()
+
+
+def test_termination_stops_group_after_leader_exits(tmp_path):
+    import os
+    import signal
+    import subprocess
+    import sys
+    import time
+    module = load_monitor()
+    marker = tmp_path/'child.pid'
+    child = ('import os,signal,time;from pathlib import Path;'
+        'signal.signal(signal.SIGTERM,signal.SIG_IGN);'
+        f'Path({str(marker)!r}).write_text(str(os.getpid()));time.sleep(30)')
+    parent = ('import subprocess,sys,time;'
+        f'subprocess.Popen([sys.executable,"-c",{child!r}]);time.sleep(30)')
+    proc = subprocess.Popen([sys.executable, '-c', parent], start_new_session=True)
+    try:
+        deadline = time.monotonic()+5
+        while not marker.exists() and time.monotonic()<deadline:
+            time.sleep(.02)
+        assert marker.exists(), 'synthetic descendant did not start'
+        pid = int(marker.read_text())
+        module.terminate_owned(proc)
+        # A reparented killed child can remain a zombie until the system reaps it.
+        while True:
+            state = subprocess.run(['ps','-p',str(pid),'-o','stat='],
+                text=True,capture_output=True,timeout=2).stdout.strip()
+            if not state or state.startswith('Z'):
+                break
+            if time.monotonic()>=deadline:
+                pytest.fail('descendant survived owned-group termination')
+            time.sleep(.02)
+        assert proc.poll() is not None
+    finally:
+        try:
+            os.killpg(proc.pid,signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        proc.wait(timeout=5)

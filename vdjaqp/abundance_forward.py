@@ -14,6 +14,7 @@ from .airr_ms_inputs import prepare_airr_ms_inputs,attach_background_membership
 from .airr_ms_metrics import variable_sequences,supplied_reference_regions,eligible_species,species_metrics
 from .simulation_metrics import exact_peptide_placements,psm_correctness
 from .readout import read_idxml
+from .data_hub import sha256
 
 
 def forward_draw(repertoire,target_ids,source_format,amounts,output,*,cpus=16,mssimulator=None,stage_timeout=900,expected_denominators=None,
@@ -89,17 +90,15 @@ def forward_draw(repertoire,target_ids,source_format,amounts,output,*,cpus=16,ms
     summary=dict(yield_counts=yields,coverage=coverages,denominators=denominators)
     validate_vector(summary)
     (root/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
-    def sha(path):
-        with Path(path).open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
-    report=dict(status='validated_cleanup_pending',raw_input_sha256=dict(repertoire=sha(repertoire),target_ids=sha(target_ids)),
+    report=dict(status='validated_cleanup_pending',raw_input_sha256=dict(repertoire=sha256(Path(repertoire)),target_ids=sha256(Path(target_ids))),
         assay_parameters=dict(min_detectability=min_detectability,dynamic_exclusion_seconds=dynamic_exclusion_seconds),
         relative_amounts=amounts.tolist(),relative_amount_sum=float(amounts.sum()),native_total_input_intensity=120000.,
         commands=source_reports,blocks=[label for label,_ in blocks],shared_chymotrypsin_acquisitions=1,
-        recovery_used_for_selection=False,source_sha256={str(p.relative_to(repo)):sha(p) for p in
+        recovery_used_for_selection=False,source_sha256={str(p.relative_to(repo)):sha256(p) for p in
             [*repo.glob('vdjaqp/*.py'),repo/'scripts/smoke_proteomics.py',
              *[f for f in (repo/'envs/openms').rglob('*') if f.is_file()]]},
         native_reports={label:json.loads((root/label/'summary.json').read_text()) for label,_ in blocks},
-        cleanup={str(p.relative_to(root)):dict(sha256=sha(p),status='pending') for p in spectra})
+        cleanup={str(p.relative_to(root)):dict(sha256=sha256(p),status='pending') for p in spectra})
     report_path=root/'joint_draw.json';report_path.write_text(json.dumps(report,indent=2)+'\n')
     for path in spectra:
         path.unlink();report['cleanup'][str(path.relative_to(root))]['status']='deleted'
@@ -107,7 +106,7 @@ def forward_draw(repertoire,target_ids,source_format,amounts,output,*,cpus=16,ms
     report['consumed_native_features']={}
     for label,_ in blocks:
         feature=root/label/'truth.featureXML'
-        report['consumed_native_features'][str(feature.relative_to(root))]=dict(sha256=sha(feature),bytes=feature.stat().st_size,status='pending')
+        report['consumed_native_features'][str(feature.relative_to(root))]=dict(sha256=sha256(feature),bytes=feature.stat().st_size,status='pending')
         report_path.write_text(json.dumps(report,indent=2)+'\n')
         feature.unlink()
         report['consumed_native_features'][str(feature.relative_to(root))]['status']='deleted'
@@ -115,19 +114,19 @@ def forward_draw(repertoire,target_ids,source_format,amounts,output,*,cpus=16,ms
     report['retention']=[]
     for path in sorted(root.rglob('*')):
         if path.suffix not in ('.tsv','.idXML') or path.stat().st_size<1_000_000:continue
-        raw_hash=sha(path);packed=path.with_name(path.name+'.gz')
+        raw_hash=sha256(path);packed=path.with_name(path.name+'.gz')
         with packed.open('xb') as raw:
             with gzip.GzipFile(filename='',fileobj=raw,mode='wb',mtime=0) as target,path.open('rb') as source:
                 shutil.copyfileobj(source,target,1024*1024)
         with gzip.open(packed,'rb') as stream:
             if hashlib.file_digest(stream,'sha256').hexdigest()!=raw_hash:raise ValueError('retention roundtrip failed')
         record=dict(raw_path=str(path.relative_to(root)),raw_sha256=raw_hash,gzip_path=str(packed.relative_to(root)),
-                    gzip_sha256=sha(packed),raw_bytes=path.stat().st_size,gzip_bytes=packed.stat().st_size,status='original_retained')
+                    gzip_sha256=sha256(packed),raw_bytes=path.stat().st_size,gzip_bytes=packed.stat().st_size,status='original_retained')
         report['retention'].append(record);report_path.write_text(json.dumps(report,indent=2)+'\n')
         path.unlink();record['status']='compressed_original_removed'
         report_path.write_text(json.dumps(report,indent=2)+'\n')
     report['status']='complete'
     report['retained_bytes']=sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
-    report['artifact_sha256']={str(p.relative_to(root)):sha(p) for p in root.rglob('*') if p.is_file() and p!=report_path}
+    report['artifact_sha256']={str(p.relative_to(root)):sha256(p) for p in root.rglob('*') if p.is_file() and p!=report_path}
     report_path.write_text(json.dumps(report,indent=2)+'\n')
     return summary

@@ -14,3 +14,8 @@ or change scientific defaults as incidental software verification.
 Use the existing scripts and workflow interfaces. Retain schema, confidence,
 missingness and receptor-boundary semantics, and document behavior changes.
 Keep private data and host configuration outside the source tree.
+
+Resolve CPU allocation before numerical imports; see the
+[development guide](https://docs.isalgo.dev/vdjaqp/development.html).
+Agent guidance lives in [skills/vdjaqp/SKILL.md](skills/vdjaqp/SKILL.md).
+Review fixes with focused synthetic regressions before the complete suite.

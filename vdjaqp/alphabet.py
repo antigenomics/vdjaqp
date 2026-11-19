@@ -35,7 +35,7 @@ def encode_frame(seqs: pl.Series) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         sequence's indices; sequence ``i`` occupies
         ``code[offset[i]:offset[i] + length[i]]``.
     """
-    length = seqs.str.len_bytes().to_numpy().astype(np.int64)
+    length = seqs.str.len_chars().to_numpy().astype(np.int64)
     offset = np.concatenate([[0], np.cumsum(length)[:-1]]) if len(length) else length
     joined = "".join(seqs.to_list())
     code = _LUT[np.frombuffer(joined.encode("ascii", "replace"), dtype=np.uint8)]

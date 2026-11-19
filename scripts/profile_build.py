@@ -5,6 +5,7 @@ Only the newly launched process group can be terminated by this wrapper.
 """
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -48,10 +49,11 @@ def terminate_owned(proc):
     try:os.killpg(proc.pid,signal.SIGTERM)
     except ProcessLookupError:pass
     try:proc.wait(timeout=5)
-    except subprocess.TimeoutExpired:
-        try:os.killpg(proc.pid,signal.SIGKILL)
-        except ProcessLookupError:pass
-        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:pass
+    # The leader may exit before descendants that ignore SIGTERM.
+    try:os.killpg(proc.pid,signal.SIGKILL)
+    except ProcessLookupError:pass
+    proc.wait(timeout=10)
 
 
 def du_allocated(path):
@@ -98,7 +100,7 @@ def main():
     a=p.parse_args()
     command=a.command[1:] if a.command[:1]==['--'] else a.command
     logpath=a.output.with_suffix('.log')
-    if not command or a.timeout<=0 or a.rss_limit<=0 or a.disk_limit<=0:
+    if not command or not math.isfinite(a.timeout) or a.timeout<=0 or a.rss_limit<=0 or a.disk_limit<=0:
         p.error('a command and positive resource bounds are required')
     if a.output.exists() or logpath.exists():
         p.error('report/log already exists; select a new output')
