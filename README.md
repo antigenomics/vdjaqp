@@ -1,5 +1,5 @@
 <p align="center">
-<img alt="VDJ-AQP logo: skull with antibody antlers and peptide chains" src="assets/vdjaqp.png" width="320">
+<img alt="VDJ-AQP logo: skull with branching antibody antlers, peptides and mass-spectrometry rays and peaks" src="assets/vdjaqp.png" width="320">
 </p>
 
 <h1 align="center">VDJ-guided Antibody Quantification from Proteomes</h1>

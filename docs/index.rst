@@ -1,5 +1,5 @@
 .. image:: _static/vdjaqp.png
-   :alt: VDJ-AQP logo: skull with antibody antlers and peptide chains
+   :alt: VDJ-AQP logo: skull with branching antibody antlers, peptides and mass-spectrometry rays and peaks
    :width: 320px
    :align: center
    :class: dark-light
