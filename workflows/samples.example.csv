@@ -1,0 +1,2 @@
+sample,candidates,peptides,producer,model
+sample_01,/absolute/input/candidates.parquet,/absolute/input/peptides.parquet,actual producer export,/absolute/input/independent_model.json

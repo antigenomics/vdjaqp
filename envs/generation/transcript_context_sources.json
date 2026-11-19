@@ -1,0 +1,41 @@
+{
+  "coordinate_profile": "ogrdb_api_v2_human_ig_observed_v1: 1-based closed on raw allele sequence; core equals sequence[gene_start-1:gene_end]",
+  "scope": "public reference parameter capability; no generating-reference substitution or runtime default",
+  "sources": {
+    "IGH": {
+      "filename": "IGH_VDJ-release10.json",
+      "sha256": "6889fea1e2da71ff2bde50f8b5e055613319408977e913631c8e6d04f53d44b1",
+      "release_version": 10,
+      "germline_set_ref": "OGRDB:IGH_VDJ.10",
+      "retrieved": "2026-11-11",
+      "retrieval": "extracted pinned GenAIRR published archive raw airr asset",
+      "archive": "GenAIRR.data/published_references/human_igh_ogrdb_10_observed_v1.zip",
+      "archive_sha256": "d8d82abcaa21b736cf31fd3eab26d59a2ed59fcdad72738ad4fbf95e731b207a",
+      "recorded_data_licence": "CC0 1.0 Universal; source.lock.json",
+      "related_release_api": "https://ogrdb.airr-community.org/api_v2/germline/set/9606.IGH_VDJ/10",
+      "raw_asset_declared_url": null
+    },
+    "IGK": {
+      "filename": "IGKappa_VJ-release5.json",
+      "sha256": "9a74d2a62626cd8b407aa8b9a97b7bbbe5f9362d4788500208354246823a66a0",
+      "release_version": 5,
+      "germline_set_ref": "OGRDB:IGKappa_VJ.5",
+      "retrieved": "2026-11-11",
+      "url": "https://ogrdb.airr-community.org/api_v2/germline/set/9606.IGKappa_VJ/5",
+      "retrieval": "official OGRDB API v2 JSON download"
+    },
+    "IGL": {
+      "filename": "IGLambda_VJ-release4.json",
+      "sha256": "48aaf90d81377836901dda1013f4244cb00ecf1437092ab76d764534d647e9c5",
+      "release_version": 4,
+      "germline_set_ref": "OGRDB:IGLambda_VJ.4",
+      "retrieved": "2026-11-11",
+      "url": "https://ogrdb.airr-community.org/api_v2/germline/set/9606.IGLambda_VJ/4",
+      "retrieval": "official OGRDB API v2 JSON download"
+    }
+  },
+  "primary_docs": [
+    "https://docs.airr-community.org/en/stable/datarep/germline.html",
+    "https://github.com/airr-community/ogrdb/blob/master/schema/ogrdb_api_v2_guide.md"
+  ]
+}

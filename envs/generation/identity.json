@@ -1,0 +1,25 @@
+{
+  "GenAIRR_source_commit": "ae6e7d8e56bf593a87718bf493606dcb703afe87",
+  "versions": {
+    "GenAIRR": "2.4.0",
+    "Biopython": "1.86",
+    "InSilicoSeq": "2.0.1"
+  },
+  "installed_model_sha256": {
+    "profiles/miSeq_28.npz": "7a5ee2a35070abe2d9f10f6e183d82de5f0063fc6e1adaa5a5cd1c47560d3d61",
+    "profiles/miSeq_36.npz": "2d4c83ca431dd54bddb414bcc94cae5e340cdedf224e23d6490fd505cd3cc3ee",
+    "profiles/miSeq_20.npz": "239391f0d1a8bffd873e6e37e4d1a13840f493043b6e5eff69e77e3818ba716a",
+    "profiles/nextSeq.npz": "0299587c03c001c663e27eab08c2e78b33ba82756f724ef1a3080eb1be21379a",
+    "profiles/miSeq_24.npz": "1ae83aeae8390d4ae96076527e123a7350ea04de05ec683a73a1e5a581270914",
+    "profiles/miSeq_32.npz": "453ebad74ce866c6bba5dcdeb1c813ddd4f2c2fcc04f13210f2b8b22c2f2ae96",
+    "profiles/miSeq_0.npz": "18987c5a372fecf55cec0ce45e39bea7301ffcddb29b3a568434f235cb8088e8"
+  },
+  "genairr_reference_sha256": {
+    "HUMAN_IGH_OGRDB.pkl": "5452960a4b87c83092232bea49a2238dd28be3a4440f389e63b83d08248dd2a9",
+    "HUMAN_IGK_OGRDB.pkl": "3229ca496e5a0dcb41a8a07daeecf965f43b3873ebe63a1b5c0563bf7047b1b1",
+    "HUMAN_IGL_OGRDB.pkl": "bdaff844834402b58d4bff85c71822429bca8c43afea23610864fb261f513089"
+  },
+  "canonical_gene_reference_sha256": {
+    "human_igh_ogrdb_10_observed_v1.zip": "d8d82abcaa21b736cf31fd3eab26d59a2ed59fcdad72738ad4fbf95e731b207a"
+  }
+}

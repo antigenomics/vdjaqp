@@ -1,0 +1,82 @@
+[
+  {
+    "file": "DTPredict.model",
+    "sha256": "1204b888e31221f3e1a494cb962f73c8324f69b9ed2e3bcacf54d282b1a8b3f8",
+    "bytes": 8034
+  },
+  {
+    "file": "DTPredict.model_additional_parameters",
+    "sha256": "1cde2d1bb62347910bd6f685d81fc2296fd6a666dff3591890a60664b501d4df",
+    "bytes": 559
+  },
+  {
+    "file": "DTPredict.model_samples",
+    "sha256": "360386a4a43128bfa2eed0102d020690ad6e4d8270b9fe9af0f4745075e70ab8",
+    "bytes": 246837
+  },
+  {
+    "file": "FASTAProteinAbundanceSampling.py",
+    "sha256": "16c9f21effa140e085a36d2d4f3c31a24b076d7a52af44f99dc13f6a7c410370",
+    "bytes": 7652
+  },
+  {
+    "file": "MSMSim.model",
+    "sha256": "71c97ed7a3f6d2e799eb07cbabc0ab3762fbc09e8989c4cb5b60abceeb842ecd",
+    "bytes": 10947
+  },
+  {
+    "file": "README",
+    "sha256": "567d7376ee1bc095f6f0d4a31d67013da5c32f6c89ab665e326ae65c2e7a4a91",
+    "bytes": 665
+  },
+  {
+    "file": "RTPredict.model",
+    "sha256": "a12ea96abfd8358f554055649cfc74f4cdf886e05c91453e349270d9db787505",
+    "bytes": 9637
+  },
+  {
+    "file": "RTPredict.model_additional_parameters",
+    "sha256": "0ecfd3d961c4b415edce031c77ef02f78df6298413d29229bf3bea95c5bbaaa9",
+    "bytes": 639
+  },
+  {
+    "file": "RTPredict.model_samples",
+    "sha256": "952d0c7f0c8a507192bca6b84c2171d1802a4912fd1811a25ec72caa7c9da370",
+    "bytes": 232097
+  },
+  {
+    "file": "SvmMSim.model",
+    "sha256": "25595a6f33225b3d9414c796bf179d72b85eae44e80765a9db1fe7b3abf395ef",
+    "bytes": 8698
+  },
+  {
+    "file": "SvmModelSet.model",
+    "sha256": "8fffb34da7b429d48421526d673fc22e8c625c7250e05aa1cc41a3aa152bcdc2",
+    "bytes": 60
+  },
+  {
+    "file": "contaminants.csv",
+    "sha256": "5028664acf6fe11085b400e59fbfce3e044825d91bf14ab5925ab4af445a2433",
+    "bytes": 40993
+  },
+  {
+    "file": "model_11__1_class.svm",
+    "sha256": "0cd28d59524f91b094505189b8ca60a5dcf3e9060f069fd8ec1c7f3125efb0e0",
+    "bytes": 2159641
+  },
+  {
+    "file": "model_11__1_reg.svm",
+    "sha256": "ee74a8894c60b3c52755885f4956907199e7c30d5faacbba6527830e2eb00417",
+    "bytes": 2313061
+  },
+  {
+    "file": "testModel_11__1_class.svm",
+    "sha256": "60ffa50665981abca7bd724ec256e230c2e3047d0b29aa609230501557712a08",
+    "bytes": 1846104
+  },
+  {
+    "file": "testModel_11__1_reg.svm",
+    "sha256": "c116daa7183f1abd002648d7a352e7a47d5c55c67d41fad8be8be32464cf5365",
+    "bytes": 2143144
+  }
+]

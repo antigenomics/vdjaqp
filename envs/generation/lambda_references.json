@@ -1,0 +1,13 @@
+{
+  "scope": "sequence-compatible native lambda J2/3 and IGLC2 fixture; not unrestricted genomic J/C mapping",
+  "references": {
+    "P0DOY2.fasta": {
+      "url": "https://rest.uniprot.org/uniprotkb/P0DOY2.fasta",
+      "sha256": "0b08e6e304479aeae87b50ebe854c0a9a758be602af342b45b1cd05c8a17de6e"
+    },
+    "J00253.embl": {
+      "url": "https://www.ebi.ac.uk/ena/browser/api/embl/J00253",
+      "sha256": "e1c8d64423120d48ac41726a6350af1a46b3b7152dbf465471f7709644f64895"
+    }
+  }
+}

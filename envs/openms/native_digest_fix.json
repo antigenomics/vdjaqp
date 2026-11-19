@@ -1,0 +1,19 @@
+{
+  "commit": "60ce8966d577b43a6419403dec171539e08fe513",
+  "sources": {
+    "DigestSimulation.cpp": {
+      "url": "https://raw.githubusercontent.com/OpenMS/OpenMS/60ce8966d577b43a6419403dec171539e08fe513/src/openms/source/SIMULATION/DigestSimulation.cpp",
+      "sha256": "2b2e59f50df0378fc3af1eeb2816398053b97b7a58465394cb4f06214dd277ba"
+    },
+    "MSSim.cpp": {
+      "url": "https://raw.githubusercontent.com/OpenMS/OpenMS/60ce8966d577b43a6419403dec171539e08fe513/src/openms/source/SIMULATION/MSSim.cpp",
+      "sha256": "f8c54429ddda3b52cb2d6571b7bd9a56142460530bb7b0a67982fc1e01b5d0f7"
+    },
+    "MSSimulator.cpp": {
+      "url": "https://raw.githubusercontent.com/OpenMS/OpenMS/60ce8966d577b43a6419403dec171539e08fe513/src/utils/MSSimulator.cpp",
+      "sha256": "f3475f42c5c1c4a236d1f8ccfe57d844b2ab02bf33487981d6dea95718d55d7f"
+    }
+  },
+  "patch": "Accumulate each peptide protein accession in a native sorted set; materialize unique PeptideEvidences once per final feature. Cleavage, intensities, native metadata initialization, feature order, seeds and models unchanged.",
+  "patch_version": 2
+}

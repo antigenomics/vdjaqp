@@ -1,0 +1,19 @@
+--- a/src/arda/rnaseq/pipeline.py
++++ b/src/arda/rnaseq/pipeline.py
+@@ -41,6 +41,7 @@
+     "airr": "{prefix}.airr.tsv",
+     "assembled_airr": "{prefix}.assembled.airr.tsv",
+     "clones": "{prefix}.clones.tsv",
++    "read_map": "{prefix}.read_ids.tsv",
+     "report": "{prefix}.arda.json",
+     "stats": "{prefix}.stats.tsv",
+     "stats_json": "{prefix}.stats.json",
+@@ -123,7 +124,7 @@
+                         min_junction_q=min_junction_q, clonotype_key=clonotype_key,
+                         call_level=call_level, isotype=isotype,
+                         complete_only=complete_only, extra_airr=extra,
+-                        cell_from=cell_from, cell_regex=cell_regex)
++                        cell_from=cell_from, cell_regex=cell_regex, read_map=paths["read_map"])
+     say(f"correct: {crep.clonotypes_in} -> {crep.clonotypes_out} clonotypes "
+         f"({crep.collapsed} collapsed) over {crep.reads} reads")
+ 

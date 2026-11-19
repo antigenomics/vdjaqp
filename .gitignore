@@ -1,0 +1,28 @@
+.DS_Store
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+*.egg-info/
+dist/
+build/
+igseq_datasets/
+external/
+results/
+
+# Local restricted inputs and provenance; never publish.
+private_data/
+published_data/
+
+# Isolated tool runtimes and freshly rebuilt smoke artifacts.
+.tool-envs/
+tmp/
+
+.nextflow*
+
+# Generated documentation
+docs/_build/
+
+# Task-owned fresh analysis staging may contain restricted records.
+.build/

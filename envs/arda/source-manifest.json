@@ -1,0 +1,46 @@
+{
+  "upstream": "https://github.com/antigenomics/arda",
+  "upstream_version": "2.36.0",
+  "baseline_commit": "049553f35114f2578c99355f8afd4c107c42c4d9",
+  "backport_commit": "dc97fcfeb68e223a1688428e0fad38394449c3e8",
+  "license": "GPLv3",
+  "qualification_status_at_preparation": "original four-module projection overlay passed 21 focused tests; additional native read-map output and exporter membership fix require fresh both-preset qualification",
+  "patch": {
+    "file": "arda-2.36.0-airr-projection.patch",
+    "bytes": 16408,
+    "sha256": "ad4fbb8e4637a9c0c3e51f4076eb61cf3fa9772eb7efd71670ca23aa8ccfded9"
+  },
+  "upstream_license": {
+    "file": "LICENSE.arda",
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+  },
+  "modules": {
+    "annotate/airr_out.py": {
+      "baseline_sha256": "2f167d375493570593668ff2f05cceafa48e5159dcaa3a58dbb4ea75ef60308f",
+      "patched_sha256": "9e97ef47c879aebff21728e1ca743f16a17414bdb53a685bfe7670e714639e03"
+    },
+    "rnaseq/assemble.py": {
+      "baseline_sha256": "10970adf51a24be8f8cc65a8367955fcaef132e29a2b308db3a5f50da3254dc0",
+      "patched_sha256": "d7ccdb63db948ff2031943215e89e9926dd9d0c96f785258a44427954e57613d"
+    },
+    "rnaseq/correct.py": {
+      "baseline_sha256": "01dc74170a3aa95574e3c61239ec596dee84dc0a8fd9cd789624a3794df7a392",
+      "patched_sha256": "53bdf3e62a7279002753d93dba090861e255d01af99c2f535a3205b9f0ba6c23"
+    },
+    "stats.py": {
+      "baseline_sha256": "b25288bdc3a0642c6a8ad98bdb941696037b07678be1f6ed7e1c04cb911c0cf3",
+      "patched_sha256": "487fc0b3fcf58ee92c8c00b256bbfffe1315aef082830a819fdafef5f6f87e81"
+    },
+    "rnaseq/pipeline.py": {
+      "baseline_sha256": "f42e2565b6a46ec47efb4e9571bb2a1f759c12ee39e096c71bf8db7f8eda3945",
+      "patched_sha256": "b2f500ec8516e93d94d15631c8e29c951ab8dd93abfc85b77c1c7a5ccabc4c77"
+    }
+  },
+  "prior_projection_commit": "4cba78167d90026d6e656d5480968bcf212c9da5",
+  "read_membership_patch": {
+    "file": "arda-2.36.0-read-membership.patch",
+    "bytes": 924,
+    "sha256": "f8d202a349b2647be44aa8ed458a5115e82b30a7a8c8812e757d18be44ac0acd",
+    "purpose": "pass existing native correct_airr read_map path; preserve native clone-row membership without changing correction defaults"
+  }
+}

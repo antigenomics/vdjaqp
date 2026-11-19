@@ -1,0 +1,212 @@
+{
+  "retrieved": "2026-11-10",
+  "scope": "natural human constant-reference integrity; no cohort generated",
+  "candidates": [
+    {
+      "gene": "IGHM",
+      "nucleotide_accession": "ENST00000390559.6",
+      "protein_id": "ENSP00000375001.2",
+      "uniprot_secreted_isoform": "P01871-1",
+      "location": "join{[1563:1876](-), [1137:1473](-), [574:892](-), [0:395](-)}",
+      "codon_start": 1,
+      "extracted_nt": 1362,
+      "annotated_protein_aa": 453,
+      "annotation_translation_verified": true,
+      "exact_uniprot_secreted_match": true,
+      "cds_sha256": "c1f9dbe11cc17871fd6398cf462b609c8deebaa3776e22a1505e446b28155972",
+      "status": "validated_natural_secreted_reference",
+      "physical_constant_aa": 453,
+      "physical_constant_sha256": "83bae260fa9f1f9ce0d255876fd35f9187d09f3339e5982b24508c6beac7bf79",
+      "native_join": "overlap_one_identical_G",
+      "full_coding_translation_verified": true,
+      "isoform": "secreted",
+      "source_url": "https://rest.ensembl.org/sequence/id/ENST00000390559?type=cds&content-type=text%2Fx-fasta",
+      "genomic_feature_extraction_verified": true,
+      "assembly": "GRCh38",
+      "genomic_region": "14:105854343..105856218:1",
+      "cds_features": [
+        {
+          "protein_id": "ENSP00000375001",
+          "Parent": "ENST00000390559",
+          "assembly_name": "GRCh38",
+          "source": "havana",
+          "phase": 0,
+          "id": "ENSP00000375001",
+          "strand": -1,
+          "version": 2,
+          "feature_type": "cds",
+          "seq_region_name": "14",
+          "end": 105856218,
+          "start": 105855906
+        },
+        {
+          "assembly_name": "GRCh38",
+          "Parent": "ENST00000390559",
+          "protein_id": "ENSP00000375001",
+          "id": "ENSP00000375001",
+          "strand": -1,
+          "source": "havana",
+          "phase": "2",
+          "feature_type": "cds",
+          "seq_region_name": "14",
+          "version": 2,
+          "start": 105855480,
+          "end": 105855815
+        },
+        {
+          "version": 2,
+          "feature_type": "cds",
+          "seq_region_name": "14",
+          "start": 105854917,
+          "end": 105855234,
+          "assembly_name": "GRCh38",
+          "protein_id": "ENSP00000375001",
+          "Parent": "ENST00000390559",
+          "strand": -1,
+          "id": "ENSP00000375001",
+          "phase": "2",
+          "source": "havana"
+        },
+        {
+          "protein_id": "ENSP00000375001",
+          "Parent": "ENST00000390559",
+          "assembly_name": "GRCh38",
+          "source": "havana",
+          "phase": "2",
+          "id": "ENSP00000375001",
+          "strand": -1,
+          "version": 2,
+          "feature_type": "cds",
+          "seq_region_name": "14",
+          "end": 105854737,
+          "start": 105854343
+        }
+      ],
+      "excluded_alternative": "X57086.1/CAB37838.1: curated I220 sequence conflict, not patched"
+    },
+    {
+      "gene": "IGHG3",
+      "nucleotide_accession": "AJ390279.1",
+      "protein_id": "CAC10261.1",
+      "uniprot_secreted_isoform": "P01860-1",
+      "location": "join{[<24:318](+), [710:761](+), [904:949](+), [1092:1137](+), [1255:1585](+), [1682:2006](+)}",
+      "codon_start": 1,
+      "extracted_nt": 1089,
+      "annotated_protein_aa": 362,
+      "annotation_translation_verified": true,
+      "exact_uniprot_secreted_match": false,
+      "cds_sha256": "08be9ff2ea96cb557c40e35394f8a35423d73de27f597bd24921aa1194caee42",
+      "status": "validated_natural_secreted_reference",
+      "physical_constant_aa": 362,
+      "physical_constant_sha256": "72f9bf715067fc754ad8eb7fdca92e85a632194bebf1dd37eccb50f66e2d96f2",
+      "native_join": "overlap_one_identical_G",
+      "full_coding_translation_verified": true,
+      "isoform": "secreted",
+      "source_url": "https://www.ncbi.nlm.nih.gov/nuccore/AJ390279.1",
+      "reference_scope": "Natural 3-exon hinge variant; not the displayed 4-exon hinge UniProt sequence; no inferred IMGT allele"
+    },
+    {
+      "gene": "IGHA1",
+      "nucleotide_accession": "J00220.1",
+      "protein_id": "AAC82528.1",
+      "uniprot_secreted_isoform": "P01876-1",
+      "location": "join{[<141:447](+), [661:1021](+), [1243:1638](+)}",
+      "codon_start": 3,
+      "extracted_nt": 1061,
+      "annotated_protein_aa": 352,
+      "annotation_translation_verified": true,
+      "exact_uniprot_secreted_match": true,
+      "cds_sha256": "bcd73d494f1eedaca9ff9360f1dbfad394c6ad7ed4cbe932fa95edcbaba0d2ea",
+      "status": "validated_natural_secreted_reference",
+      "physical_constant_aa": 353,
+      "physical_constant_sha256": "731c132464536022a491e69102ab68c415db0eb01e46f5a2b8d594648d34a5db",
+      "native_join": "complete_split_initial_codon",
+      "full_coding_translation_verified": true,
+      "isoform": "secreted",
+      "source_url": "https://www.ncbi.nlm.nih.gov/nuccore/J00220.1"
+    },
+    {
+      "gene": "IGHE",
+      "nucleotide_accession": "J00222.1",
+      "protein_id": "AAB59395.1",
+      "uniprot_secreted_isoform": "P01854-1",
+      "location": "join{[<1209:1518](+), [1725:2046](+), [2132:2456](+), [2539:2871](+)}",
+      "codon_start": 3,
+      "extracted_nt": 1286,
+      "annotated_protein_aa": 427,
+      "annotation_translation_verified": true,
+      "exact_uniprot_secreted_match": false,
+      "cds_sha256": "fb69a4b9ef5c54db9e41e7b46ae0fe42bb0305210ecb5e870c2851dab86101eb",
+      "status": "validated_natural_secreted_reference",
+      "physical_constant_aa": 428,
+      "physical_constant_sha256": "8379b2506165d68f5fa0c302bc30b930a79e8186bdcd4d9ac997ab57182015b7",
+      "native_join": "complete_split_initial_codon",
+      "full_coding_translation_verified": true,
+      "isoform": "secreted",
+      "source_url": "https://www.ncbi.nlm.nih.gov/nuccore/J00222.1",
+      "curated_variant": "UniProt VAR_044229: W43C, IGHE*01; exact translated source allele, not patched"
+    }
+  ],
+  "downloaded_records": {
+    "ncbi_additional.gb": {
+      "sha256": "5ec87e3ca3805a1b432c74711b6a95bbe14b7f363b0c6fa8b9fdb9ca7ef9b6ba",
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=K01310,X57086,J00231&rettype=gb&retmode=text"
+    },
+    "P01854-1.fasta": {
+      "sha256": "4f6fe327d3aff24ca7caf03c2a9ef98368832b7a6a454ef90a0e206b8d94bdf6",
+      "url": "https://rest.uniprot.org/uniprotkb/P01854-1.fasta"
+    },
+    "P01854.txt": {
+      "sha256": "1f1039eada8798066e1e1aba42bddc9fd3830289347736f1ad0fc36948869b3f",
+      "url": "https://rest.uniprot.org/uniprotkb/P01854.txt"
+    },
+    "P01860-1.fasta": {
+      "sha256": "b8c4b6f0ce281a30a97cd66b977d2739b8634fd4c1df5377dc8579c284296133",
+      "url": "https://rest.uniprot.org/uniprotkb/P01860-1.fasta"
+    },
+    "ncbi_records.gb": {
+      "sha256": "2857ed0461137f487f3d2fc210d277b3d950f4ab74086a6eac17a37cc91e4310",
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=X14940,X03604,J00220,J00222&rettype=gb&retmode=text"
+    },
+    "P01871-1.fasta": {
+      "sha256": "0eef45949655ba93da0d2f13cb085b3cecc6c93884b17230b98ed56fbfb675af",
+      "url": "https://rest.uniprot.org/uniprotkb/P01871-1.fasta"
+    },
+    "P01860.txt": {
+      "sha256": "f149bee846099501b8e6b2d0dd4b2863ef6b1771be16167c5380309df7faee3e",
+      "url": "https://rest.uniprot.org/uniprotkb/P01860.txt"
+    },
+    "P01876.txt": {
+      "sha256": "d243d27e52e6dd3fe3b38415fbaaa588940d88817a0b65bf2b58768bd9c32c77",
+      "url": "https://rest.uniprot.org/uniprotkb/P01876.txt"
+    },
+    "P01871.txt": {
+      "sha256": "2535ac3e018ecfec6a9e350dc69c81b3f19d984a682f421ed19dcbbc887ad931",
+      "url": "https://rest.uniprot.org/uniprotkb/P01871.txt"
+    },
+    "P01876-1.fasta": {
+      "sha256": "cb06931918988bb02da846eee5db9e08aca49c94161a67e461dfe6548b909ace",
+      "url": "https://rest.uniprot.org/uniprotkb/P01876-1.fasta"
+    },
+    "ncbi_closure.gb": {
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=AJ390279,AH005277&rettype=gb&retmode=text",
+      "sha256": "f623c143e2da6f4d492c2c4a18602135d2e717faa0f40d4bb45af60047e2b89a"
+    },
+    "ENST00000390559.cds.fasta": {
+      "url": "https://rest.ensembl.org/sequence/id/ENST00000390559?type=cds&content-type=text%2Fx-fasta",
+      "sha256": "7ceda5f92cdb5cc002f460a7240e7c60873f01d5b258d2c7f8ad95dca8706865"
+    },
+    "ENST00000390559.lookup.json": {
+      "url": "https://rest.ensembl.org/lookup/id/ENST00000390559?content-type=application%2Fjson",
+      "sha256": "8be9a4e12d0b1f9dc253e73a7ac5d909325a9a68f8895a8fd951e08be14d3d98"
+    },
+    "ENST00000390559.cds-features.json": {
+      "url": "https://rest.ensembl.org/overlap/id/ENST00000390559?feature=cds&content-type=application%2Fjson",
+      "sha256": "796936e79f9bd6e51a4451f28c5a33ebe88c5d669a1ad5186c8cad2d83ea0730"
+    },
+    "IGHM.GRCh38.genomic.fasta": {
+      "url": "https://rest.ensembl.org/sequence/region/human/14:105854343..105856218:1?coord_system_version=GRCh38&content-type=text%2Fx-fasta",
+      "sha256": "856788cd8b114934129037e9962e235d8265be32b5273e419b4250805e952dcb"
+    }
+  }
+}

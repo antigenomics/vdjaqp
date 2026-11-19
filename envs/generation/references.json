@@ -1,0 +1,20 @@
+{
+  "references": {
+    "P01857-1.fasta": {
+      "url": "https://rest.uniprot.org/uniprotkb/P01857-1.fasta",
+      "sha256": "a0d75d075e609b502b967ce01dde239401b7d628b871b12c36358379cac1026b"
+    },
+    "P01834.fasta": {
+      "url": "https://rest.uniprot.org/uniprotkb/P01834.fasta",
+      "sha256": "10ab5c4ac270ff2c92bb6d489dd87e8236cbaa3d4c0beacee670ffd332649dff"
+    },
+    "J00228.embl": {
+      "url": "https://www.ebi.ac.uk/ena/browser/api/embl/J00228",
+      "sha256": "37b923b30b32a2044e66c0b7c5e7ee898d5bfbb5a7e70710049a5c018adfaa3c"
+    },
+    "J00241.embl": {
+      "url": "https://www.ebi.ac.uk/ena/browser/api/embl/J00241",
+      "sha256": "c591f413c784d5e41a54b0b82880ad53ebdb592918368170054d76c40873c327"
+    }
+  }
+}

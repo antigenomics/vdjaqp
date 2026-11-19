@@ -1,0 +1,321 @@
+diff --git a/src/arda/annotate/airr_out.py b/src/arda/annotate/airr_out.py
+index 0d62990..d5ff529 100644
+--- a/src/arda/annotate/airr_out.py
++++ b/src/arda/annotate/airr_out.py
+@@ -85,9 +85,14 @@ def _format_rows_py(records: list[dict], cols=_COLUMNS) -> str:
+         out.append("\t".join(vals))
+     return "\n".join(out) + ("\n" if out else "")
+ 
+-def read_airr(path):
++def read_airr(path, *, columns=None):
+     """Read an AIRR TSV, tolerating BOTH dialects arda has written.
+ 
++    ``columns`` optionally projects only requested fields present in the file,
++    in original column order, before loading their payload. Missing optional fields
++    stay absent. With no matching fields the result is an empty, zero-column frame.
++    The default reads every field exactly as before.
++
+     Never: ``quote_char=None`` is not a style choice. ``junction_quality`` is a Phred+33 string and
+     **chr 34 is ``"``, i.e. Q1** -- a legitimate score any low-quality base produces. polars' reader
+     treats it as a quote character, so ONE such base collapses the parse of the whole file
+@@ -102,7 +107,17 @@ def read_airr(path):
+     Hence the normalisation below: an AIRR field is never legitimately the two-character string
+     ``""``, so mapping it back to empty is unambiguous and makes both dialects read the same.
+     """
+-    df = pl.read_csv(path, separator="\t", infer_schema_length=0, quote_char=None)
++    options = {}
++    if columns is not None:
++        header = pl.scan_csv(path, separator="\t", infer_schema_length=0,
++                             quote_char=None).collect_schema().names()
++        wanted = set(columns)
++        selected = [name for name in header if name in wanted]
++        if not selected:
++            return pl.DataFrame()
++        options['columns'] = selected
++    df = pl.read_csv(path, separator="\t", infer_schema_length=0, quote_char=None,
++                     **options)
+     return df.with_columns(
+         pl.when(pl.col(c) == '""').then(pl.lit("")).otherwise(pl.col(c)).alias(c)
+         for c, t in df.schema.items() if t == pl.Utf8)
+diff --git a/src/arda/rnaseq/assemble.py b/src/arda/rnaseq/assemble.py
+index a66b16a..51edae7 100644
+--- a/src/arda/rnaseq/assemble.py
++++ b/src/arda/rnaseq/assemble.py
+@@ -289,18 +289,16 @@ def assemble_contigs(
+         An :class:`AssembleReport`.
+     """
+     output = Path(output)
+-    raw = _read_airr(airr_tsv)
++    # Project before loading the wide AIRR and materializing Python strings.
++    # Missing optional fields remain absent; col() retains its existing fallback.
++    _USED = ("c_call", "c_class", "cdr3_start", "j_call", "junction", "junction_aa",
++             "locus", "rev_comp", "sequence", "sequence_id", "v_call")
++    raw = _read_airr(airr_tsv, columns=_USED)
+     stage = Stage()
+     report = AssembleReport(reads_in=raw.height)
+     n = raw.height
+-    # Only the columns this function reads. A Stage-1 AIRR has 83, and `to_list()` on the
+-    # rest builds Python str objects for `sequence_alignment`, `germline_alignment` and
+-    # every region sequence -- measured 2.42 KB/row against 0.41 KB/row for the columns
+-    # actually used, i.e. ~2 KB wasted per mapped read (~7 GB at SRR5233639's full depth).
+-    # `col()` below already tolerates an absent column, so restricting the dict is safe.
+-    _USED = ("c_call", "c_class", "cdr3_start", "j_call", "junction", "junction_aa",
+-             "locus", "rev_comp", "sequence", "sequence_id", "v_call")
+     cols = {c: raw[c].to_list() for c in raw.columns if c in _USED}
++    del raw  # No later use: release the columnar copy before oriented strings/indexes.
+ 
+     def col(name):
+         return cols.get(name, [None] * n)
+diff --git a/src/arda/rnaseq/correct.py b/src/arda/rnaseq/correct.py
+index 41ecee4..f2da06f 100644
+--- a/src/arda/rnaseq/correct.py
++++ b/src/arda/rnaseq/correct.py
+@@ -39,6 +39,12 @@ from .denoise import (REGIMES, DenoiseReport, clonotype_quality, quality_rescue,
+ 
+ __all__ = ["correct_airr", "CorrectReport", "CLONOTYPE_KEYS", "CALL_LEVELS"]
+ 
++# Only correction inputs: keep full AIRR region/alignment evidence in its source file.
++_CORRECTION_COLUMNS = (
++    'sequence_id', 'sequence', 'rev_comp', 'locus', 'v_call', 'j_call',
++    'c_call', 'c_class', 'junction', 'junction_aa', 'junction_quality',
++)
++
+ 
+ 
+ #: How a clonotype is identified.
+@@ -1174,11 +1180,11 @@ def correct_airr(
+ 
+     stage = Stage()
+     output = Path(output)
+-    raw = _read_airr(airr_tsv)
++    raw = _read_airr(airr_tsv, columns=_CORRECTION_COLUMNS)
+     n_assembled = 0
+     asm_from = -1                          # index of the first assembled row in `raw`, if any
+     if extra_airr is not None:
+-        extra = _read_airr(extra_airr)
++        extra = _read_airr(extra_airr, columns=_CORRECTION_COLUMNS)
+         if extra.height:
+             # Never: Remember how many rows came from ASSEMBLY. A rescued read appears TWICE in the
+             # concatenated frame -- once as its incomplete Stage-1 row and once as the assembled
+diff --git a/src/arda/stats.py b/src/arda/stats.py
+index a696f50..db5c872 100644
+--- a/src/arda/stats.py
++++ b/src/arda/stats.py
+@@ -43,6 +43,7 @@ shortlist.
+ 
+ from __future__ import annotations
+ 
++import gzip
+ import json
+ from pathlib import Path
+ 
+@@ -91,7 +92,8 @@ def _read_present(path: Path, wanted: tuple[str, ...]) -> pl.DataFrame:
+     ``v_identity`` and a ``duplicate_count`` are all handled by an explicit cast at the point of
+     use, rather than by whatever polars guesses from the first 100 rows of one sample.
+     """
+-    header = path.open().readline().rstrip("\n").split("\t")
++    with gzip.open(path, "rt") if path.suffix == ".gz" else path.open() as stream:
++        header = stream.readline().rstrip("\n").split("\t")
+     cols = [c for c in wanted if c in header]
+     if not cols:
+         return pl.DataFrame()
+diff --git a/tests/unit/test_airr_projection.py b/tests/unit/test_airr_projection.py
+new file mode 100644
+index 0000000..4b95f7e
+--- /dev/null
++++ b/tests/unit/test_airr_projection.py
+@@ -0,0 +1,75 @@
++"""Column pushdown preserves v2.36 AIRR values and assembly decisions."""
++import gzip
++import random
++
++import polars as pl
++import pytest
++from arda.annotate.airr_out import read_airr
++
++
++@pytest.mark.parametrize('compressed',[False,True])
++@pytest.mark.parametrize('header_only',[False,True])
++def test_projection_matches_full_reader_present_fields_and_order(tmp_path,compressed,header_only):
++    text='sequence_id\tunused\tjunction\tjunction_quality\tmissing_value\n'
++    if not header_only:text+='r2\tWIDE\tacgn\t!"#\t""\nr1\tOTHER\tTGT\tIII\t\n'
++    path=tmp_path/('input.tsv.gz' if compressed else 'input.tsv')
++    if compressed:
++        with gzip.open(path,'wt') as stream:stream.write(text)
++    else:path.write_text(text)
++    full=read_airr(path)
++    projected=read_airr(path,columns=['junction_quality','missing_value','absent','sequence_id','junction'])
++    expected=full.select([c for c in full.columns if c!='unused'])
++    assert projected.equals(expected)
++    assert 'absent' not in projected.columns
++    assert all(dtype==pl.String for dtype in projected.schema.values())
++    if not header_only:
++        assert projected['sequence_id'].to_list()==['r2','r1']
++        assert projected['junction_quality'].to_list()==['!"#','III']
++        assert projected['junction'][0]=='acgn'  # v2.36 behavior, no new normalization.
++        assert projected['missing_value'].to_list()==['',None]
++
++
++def test_payload_reader_receives_projection_and_missing_quality_stays_absent(tmp_path,monkeypatch):
++    from arda.annotate import airr_out
++    path=tmp_path/'native.tsv';path.write_text('sequence_id\tsequence\tunused_wide\nr1\tACT\t'+('X'*10000)+'\n')
++    native=airr_out.pl.read_csv;calls=[]
++    def spy(*args,**kwargs):
++        calls.append(kwargs.copy());return native(*args,**kwargs)
++    monkeypatch.setattr(airr_out.pl,'read_csv',spy)
++    out=airr_out.read_airr(path,columns=['sequence_id','sequence','junction_quality'])
++    assert calls==[dict(separator='\t',infer_schema_length=0,quote_char=None,columns=['sequence_id','sequence'])]
++    assert out.columns==['sequence_id','sequence'] and 'junction_quality' not in out.columns
++    assert airr_out.read_airr(path,columns=['absent']).shape==(0,0)
++    assert len(calls)==1  # No payload read when no requested field exists.
++
++
++def test_assembly_output_and_counts_equal_original_full_reader(tmp_path,monkeypatch):
++    import arda.rnaseq.assemble as asm
++    from arda.annotate.airr_out import read_airr as projected_read
++    rng=random.Random(3)
++    junction='TGT'+'GCTAGA'*12+'TGG';junction_aa='C'+'AR'*12+'W'
++    molecule=''.join(rng.choice('ACGT') for _ in range(120))+junction+''.join(rng.choice('ACGT') for _ in range(60))
++    rows=[]
++    for i,offset in enumerate([0,30,60,90,120,150,180]):
++        cs=120-offset
++        rows.append(dict(sequence_id=f'f{i}/1',sequence=molecule[offset:offset+100],rev_comp='F',locus='IGH',
++            v_call='IGHV3-23*01',j_call='IGHJ4*02',c_call='',c_class='',cdr3_start=str(cs) if 0<=cs<100 else '',
++            junction='',junction_aa='',unused_wide='X'*10000))
++    path=tmp_path/'mapped.tsv';pl.DataFrame(rows).write_csv(path,separator='\t')
++    def annotate(records,*args,**kwargs):
++        return [dict(sequence_id=name,junction=junction,junction_aa=junction_aa,
++            v_call='IGHV3-23*01',j_call='IGHJ4*02',locus='IGH') for name,_ in records]
++    monkeypatch.setattr(asm,'reannotate_contigs',annotate)
++    baseline=tmp_path/'full.tsv';fresh=tmp_path/'projected.tsv'
++    monkeypatch.setattr(asm,'_read_airr',lambda path,**kwargs:projected_read(path))
++    old=asm.assemble_contigs(path,baseline)
++    observed=[]
++    def narrow(path,**kwargs):
++        observed.append(kwargs['columns']);return projected_read(path,**kwargs)
++    monkeypatch.setattr(asm,'_read_airr',narrow)
++    new=asm.assemble_contigs(path,fresh)
++    assert baseline.read_bytes()==fresh.read_bytes()
++    assert old.reads_rescued==new.reads_rescued>0
++    for key,value in old.as_dict().items():
++        if key not in ['wall_seconds','peak_rss_mb','rss_gain_mb']:assert new.as_dict()[key]==value
++    assert len(observed)==1 and len(observed[0])==11 and 'unused_wide' not in observed[0]
+diff --git a/tests/unit/test_correct_projection.py b/tests/unit/test_correct_projection.py
+new file mode 100644
+index 0000000..36e84ef
+--- /dev/null
++++ b/tests/unit/test_correct_projection.py
+@@ -0,0 +1,71 @@
++"""Constructed correction equivalence: projected AIRR reads versus full-reader baseline."""
++from pathlib import Path
++
++import polars as pl
++import pytest
++
++from arda.annotate.airr_out import read_airr
++from arda.rnaseq import correct
++
++COLUMNS={'sequence_id','sequence','rev_comp','locus','v_call','j_call','c_call',
++         'c_class','junction','junction_aa','junction_quality'}
++PARENT='TGTGCCAGCAGCTTAGACGGGACAGGGTTC'
++FAR='TGTGCCAGCAGCTTAGACGGGTAAGCATTC'
++
++
++def source_rows():
++    rows=[]
++    for label,junction,n,q in [('p',PARENT,400,'I'),('far',FAR,2,'4'),
++                               ('gate',PARENT[:-4]+'TTTC',1,'!')]:
++        for i in range(n):
++            rows.append(dict(sequence_id=f'cell1_UMI{i:04d}_{label}/1',sequence=junction,
++                rev_comp='F',locus='TRB',v_call='TRBV20-1*01',j_call='TRBJ2-1*01',
++                c_call='TRBC1',c_class='TRBC',junction=junction,junction_aa='CASSLDGTGF',
++                junction_quality=q*len(junction),sequence_alignment='unused'*100,
++                germline_alignment='unused'*100,fwr1='ACGT',fwr1_aa='T',
++                v_mutations='A1C',v_mutation_quality='40'))
++    # An incomplete mate, a constant-only mate and an assembled rescue retain their roles.
++    rows.append({**rows[0],'sequence_id':'partial/1','sequence':PARENT[:24],
++                 'junction':PARENT[:24],'junction_aa':'CASSLDGT','junction_quality':'I'*24})
++    rows.append({**rows[0],'sequence_id':rows[0]['sequence_id'][:-1]+'2',
++                 'junction':'','junction_aa':'','junction_quality':''})
++    return rows
++
++
++@pytest.mark.parametrize('mode',sorted(correct.EC_MODES))
++@pytest.mark.parametrize('options',[{},dict(coverage=False,isotype=False,call_level='gene',clonotype_key='junction')])
++def test_projection_matches_full_reader_scientific_outputs(tmp_path,monkeypatch,mode,options):
++    main=tmp_path/'main.tsv';extra=tmp_path/'extra.tsv'
++    rows=source_rows();pl.DataFrame(rows).write_csv(main,separator='\t',quote_style='never')
++    pl.DataFrame([{**rows[0],'sequence_id':'partial/1'}]).write_csv(extra,separator='\t',quote_style='never')
++    results=[];requests=[]
++    for projected in (False,True):
++        def reader(path,*,columns=None):
++            if projected:
++                requests.append((Path(path).name,columns))
++                return read_airr(path,columns=columns)
++            return read_airr(path)
++        monkeypatch.setattr(correct,'_read_airr',reader)
++        out=tmp_path/f'{projected}.tsv';mapping=tmp_path/f'{projected}.map.tsv'
++        report=correct.correct_airr(main,out,extra_airr=extra,ec_mode=mode,
++            read_map=mapping,**options).as_dict()
++        for field in ('wall_seconds','peak_rss_mb','rss_gain_mb'):report.pop(field)
++        results.append((out.read_bytes(),mapping.read_bytes(),report))
++    assert results[0]==results[1]
++    assert len(requests)==2 and all(set(cols)==COLUMNS for _,cols in requests)
++    assert results[1][2]['reads_from_assembly']==1
++    if mode in ('amplicon','rnaseq'):
++        assert results[1][2]['rescued_reads']>0
++
++
++@pytest.mark.parametrize('mode',['amplicon','rnaseq'])
++def test_missing_quality_error_is_preserved(tmp_path,monkeypatch,mode):
++    path=tmp_path/'missing.tsv'
++    pl.DataFrame(source_rows()).drop('junction_quality').write_csv(path,separator='\t')
++    errors=[]
++    for projected in (False,True):
++        monkeypatch.setattr(correct,'_read_airr',lambda p,columns=None:read_airr(p,**({'columns':columns}if projected else {})))
++        with pytest.raises(ValueError) as error:
++            correct.correct_airr(path,tmp_path/f'{projected}.tsv',ec_mode=mode)
++        errors.append(str(error.value))
++    assert errors[0]==errors[1] and 'junction_quality' in errors[0]
+diff --git a/tests/unit/test_stats_gzip.py b/tests/unit/test_stats_gzip.py
+new file mode 100644
+index 0000000..d9d8afc
+--- /dev/null
++++ b/tests/unit/test_stats_gzip.py
+@@ -0,0 +1,36 @@
++"""Raw and gzip AIRR inputs must give identical existing QC rows."""
++import gzip
++import polars as pl
++import pytest
++from arda import stats
++
++
++@pytest.mark.parametrize('optional',[False,True])
++@pytest.mark.parametrize('header_only',[False,True])
++def test_stats_rows_and_projected_fields_equal_raw_gzip(tmp_path,monkeypatch,optional,header_only):
++    # No reference lookup: this is input-format equivalence, not scientific QC.
++    monkeypatch.setattr(stats,'_gene_universe',lambda organism:{})
++    columns=['sequence_id','locus','v_call','j_call','junction','junction_aa','unused_wide']
++    values=['r1','IGH','IGHV1-2*01','IGHJ4*01','TGTGCTTGG','CAW','X'*1000]
++    if optional:
++        columns+=['junction_quality','v_mutations','v_mutation_quality','v_identity']
++        values+=['I"IIIIIII','','','']
++    text='\t'.join(columns)+'\n'
++    if not header_only:text+='\t'.join(values)+'\n'
++    raw=tmp_path/'native.airr.tsv';raw.write_text(text)
++    packed=tmp_path/'native.airr.tsv.gz'
++    with packed.open('wb') as handle:
++        with gzip.GzipFile(filename='',fileobj=handle,mode='wb',mtime=0) as stream:stream.write(raw.read_bytes())
++    a=stats._read_present(raw,stats._READ_COLS);b=stats._read_present(packed,stats._READ_COLS)
++    assert a.equals(b) and 'unused_wide' not in b.columns
++    assert all(dtype==pl.String for dtype in b.schema.values())
++    assert ('junction_quality' in b.columns)==optional
++    if optional and not header_only:assert b['junction_quality'][0]=='I"IIIIIII'
++    assert stats.collect(airr=raw)==stats.collect(airr=packed)
++
++
++def test_absent_requested_fields_remain_empty_for_both_formats(tmp_path):
++    raw=tmp_path/'unrelated.tsv';raw.write_text('unused\nvalue\n')
++    packed=tmp_path/'unrelated.tsv.gz'
++    with gzip.GzipFile(filename='',fileobj=packed.open('wb'),mode='wb',mtime=0) as stream:stream.write(raw.read_bytes())
++    for path in [raw,packed]:assert stats._read_present(path,stats._READ_COLS).shape==(0,0)

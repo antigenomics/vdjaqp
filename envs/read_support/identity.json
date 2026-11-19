@@ -1,0 +1,34 @@
+{
+  "minimap2": {
+    "version": [
+      "2.31-r1302"
+    ],
+    "local_binary_sha256": "233e289649c6886531810b3917ac1180c72beb432c3e64ba1d918f3ed3365907"
+  },
+  "samtools": {
+    "version": [
+      "samtools 1.25",
+      "Using htslib 1.25"
+    ],
+    "local_binary_sha256": "61dc0b016f381a1fb49dec8f449738d5cf724304a2a7bd82d19e039cb586898c",
+    "release_archive_url": "https://github.com/samtools/samtools/releases/download/1.25/samtools-1.25.tar.bz2",
+    "release_archive_sha256": "8bbd2b3cb447953149a74ab0b00e3ec4e88a789a27b8373a31fa6b5b2dee02b1",
+    "bundled_htslib": "1.25",
+    "configure_options": [
+      "--without-curses",
+      "--disable-libcurl",
+      "--disable-s3",
+      "--disable-gcs"
+    ],
+    "build": "make -j16 samtools",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
+    "runtime_path": ".tool-envs/samtools/bin/samtools",
+    "diagnostic": {
+      "scope": "existing software fixture native BAM, all contigs in one mpileup",
+      "reference_positions_checked": 5110,
+      "nul_reference_bytes": 0,
+      "all_reference_bases_match": true
+    },
+    "bugfix_source": "https://github.com/samtools/samtools/pull/2364"
+  }
+}

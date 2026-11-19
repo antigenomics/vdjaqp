@@ -1,0 +1,2 @@
+# Official PyPI release metadata verified 2026-11-11; model engine only.
+pyabc==0.13.1

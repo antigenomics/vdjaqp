@@ -1,0 +1,50 @@
+name: ci
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version-file: .python-version
+          enable-cache: true
+      - name: Install locked environment
+        run: uv sync --extra test --extra docs --extra data --frozen
+      - name: Unit and synthetic tests
+        run: .venv/bin/python -m pytest tests -q
+      - name: Toy example
+        run: .venv/bin/python examples/toy/run_toy.py
+      - name: Documentation (warnings are errors)
+        run: make -C docs html
+      - name: Data bootstrap CLI
+        run: .venv/bin/vdjaqp-data --help
+      - uses: nf-core/setup-nextflow@v2
+        with:
+          version: '25.10.2'
+      - name: Data-free Nextflow end-to-end check
+        run: |
+          .venv/bin/python workflows/make_fixture.py tmp/ci-input
+          nextflow run main.nf --samples tmp/ci-input/samples.csv --outdir tmp/ci-output --cpus 1
+          .venv/bin/python - <<'PYTHON'
+          import json
+          from pathlib import Path
+          import polars as pl
+          root = Path('tmp/ci-output/technical/analysis')
+          report = json.loads((root / 'report.json').read_text())
+          assert report['candidates'] == report['peptides'] == 1
+          assert report['truth_loaded'] is False
+          assert pl.read_parquet(root / 'scores.parquet')['clone_id'].to_list() == ['c0']
+          PYTHON

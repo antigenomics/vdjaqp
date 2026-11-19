@@ -1,0 +1,43 @@
+{
+  "fastp_version": "0.24.0",
+  "platform": "osx-64 via verified macOS Rosetta",
+  "packages": [
+    {
+      "name": "fastp",
+      "version": "0.24.0",
+      "build": "h9ea9c2a_1",
+      "url": "https://conda.anaconda.org/bioconda/osx-64/fastp-0.24.0-h9ea9c2a_1.tar.bz2",
+      "sha256": "45a92198e55b3d27fc89678a92a1f00b9c1e0fbddb7ecadf769b19cb95c63a66",
+      "md5": "dd868938b832eecd4de1dfac4cfb3160",
+      "license": "MIT"
+    },
+    {
+      "name": "libcxx",
+      "version": "23.1.5",
+      "build": "h19cb2f5_0",
+      "url": "https://conda.anaconda.org/conda-forge/osx-64/libcxx-23.1.5-h19cb2f5_0.conda",
+      "sha256": "175d8a9b3a6a035fba07d9b44a75c85957b84bafc834d1aeeda87cf57f764917",
+      "md5": "ce6f5df6b20cc6bc7228f38258df826b",
+      "license": "Apache-2.0 WITH LLVM-exception"
+    },
+    {
+      "name": "isa-l",
+      "version": "2.32.1",
+      "build": "ha1e9b39_0",
+      "url": "https://conda.anaconda.org/conda-forge/osx-64/isa-l-2.32.1-ha1e9b39_0.conda",
+      "sha256": "336575d1ffad9410d172a2fd3feef977db376036bf50348b26ae5750aa3ce8e2",
+      "md5": "3657f4c8f0a36473b3863b1be8b311d5",
+      "license": "BSD-3-Clause"
+    },
+    {
+      "name": "libdeflate",
+      "version": "1.26",
+      "build": "hb7db194_0",
+      "url": "https://conda.anaconda.org/conda-forge/osx-64/libdeflate-1.26-hb7db194_0.conda",
+      "sha256": "1e3fa4641e747414de5474380c7febdd92889017e3418ade6af03ee001872320",
+      "md5": "56bf093bccc7c698eee1d8ffccd7aee6",
+      "license": "MIT"
+    }
+  ],
+  "fastp_executable_sha256": "740437ae5e73c93480973b01c0abbca81f73c818d559bc90062b14f006ad3f90"
+}
