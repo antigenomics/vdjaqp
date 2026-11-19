@@ -1,10 +1,7 @@
-.. image:: _static/vdjaqp_light.svg
-   :alt: VDJ-AQP — antibody peptides meet receptor repertoires
-   :class: only-light
-
-.. image:: _static/vdjaqp_dark.svg
-   :alt: VDJ-AQP — antibody peptides meet receptor repertoires
-   :class: only-dark
+.. image:: _static/vdjaqp.png
+   :alt: VDJ-AQP logo: skull with antibody antlers and peptide chains
+   :width: 320px
+   :align: center
 
 VDJ-AQP pipeline
 ================

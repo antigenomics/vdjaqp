@@ -5,8 +5,8 @@ exclude_patterns = ['_build', 'superpowers/**']
 
 author = 'ISALGO laboratory'
 html_static_path = ['_static']
+html_logo = '_static/vdjaqp.png'
 html_theme_options = {
-    'logo': {'image_light': '_static/vdjaqp_light.svg', 'image_dark': '_static/vdjaqp_dark.svg'},
     'github_url': 'https://github.com/antigenomics/vdjaqp',
     'show_nav_level': 2,
     'header_links_before_dropdown': 4,
