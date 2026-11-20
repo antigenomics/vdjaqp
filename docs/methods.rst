@@ -1,6 +1,18 @@
 Scientific methods and interpretation
 =====================================
 
+Study workflows and software options
+------------------------------------
+
+The manuscript's primary experimental identification, held-out source recovery,
+and public-cohort clone analyses use different decision rules. The analysis
+workflow scores prepared candidates and reports confirmed and junction evidence.
+Apply the study's declared rule and population at the interpretation stage.
+This page also documents software alternatives, diagnostic outputs and prior
+method-development recipes. Their presence here does not change the manuscript's
+analysis or thresholds. See :doc:`data` for the inputs and version receipts an
+exact rerun requires.
+
 Tool lineage and reproducibility
 --------------------------------
 

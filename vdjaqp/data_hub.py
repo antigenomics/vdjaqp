@@ -1,6 +1,6 @@
 """Fetch VDJ-AQP data from the Hugging Face dataset ``isalgo/igprotseq``.
 
-The dataset is the single data source for the pipeline and the manuscript. Its
+The dataset distributes processed companion inputs and retained results. Its
 ``MANIFEST.tsv`` lists every file with ``path``, ``bytes``, ``sha256`` and ``group``.
 By default only the small ``calibration`` group (frozen error model and declared
 parameters) is downloaded; larger groups are fetched on request:
@@ -141,6 +141,8 @@ def fetch(groups, dest: Path, revision: str | None = None, cache: Path | None = 
     from huggingface_hub import HfApi, hf_hub_download, snapshot_download
     # Resolve mutable tags/branches once before either download.
     revision = HfApi().dataset_info(REPO_ID, revision=revision).sha
+    if not isinstance(revision, str) or not re.fullmatch(r'[0-9a-f]{40}', revision):
+        raise ValueError('dataset revision did not resolve to an immutable commit')
     manifest = Path(hf_hub_download(REPO_ID, 'MANIFEST.tsv', repo_type=REPO_TYPE, revision=revision,
                                     cache_dir=cache))
     rows = select(read_manifest(manifest), groups)
@@ -164,7 +166,7 @@ def fetch(groups, dest: Path, revision: str | None = None, cache: Path | None = 
                 continue
             _publish(snapshot / r['path'], target, int(r['bytes']), r['sha256'])
         _publish(manifest, manifest_target, manifest.stat().st_size, sha256(manifest))
-    print(f'{len(rows)} files from {REPO_ID} ({", ".join(sorted(set(r["group"] for r in rows)))}) '
+    print(f'{len(rows)} files from {REPO_ID}@{revision} ({", ".join(sorted(set(r["group"] for r in rows)))}) '
           f'verified into {dest}')
     return dest
 
