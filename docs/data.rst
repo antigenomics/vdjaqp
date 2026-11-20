@@ -11,16 +11,17 @@ Bootstrap
 
 .. code-block:: sh
 
-   uv sync --extra data
+   uv sync --frozen --extra data
    .venv/bin/vdjaqp-data                                # calibration only (default)
    .venv/bin/vdjaqp-data --group donor simulations      # one-donor AIRR/peptides, simulations
    .venv/bin/vdjaqp-data --group external               # processed public gut cohorts
-   .venv/bin/vdjaqp-data --group results --dest ../2026-vdjaqp-ms   # paper result tables
+   .venv/bin/vdjaqp-data --group results --dest ./paper-inputs    # retained result tables
    .venv/bin/vdjaqp-data --verify DIR --group all       # re-check an existing copy
 
 Each download is verified against the manifest SHA-256. Pin a dataset commit with
 ``--revision`` for exact reproduction. Mutable revisions are resolved once to an
-immutable dataset commit before fetching the manifest and files. Manifest paths,
+immutable dataset commit before fetching the manifest and files. The command prints
+the resolved commit. Manifest paths,
 required metadata, sizes and digests are validated before publication.
 
 Writers serialize through a bounded destination lock. Destination file identity
@@ -56,7 +57,7 @@ has not been qualified. Abrupt termination may leave an unused staging file.
        PROTECT GSE109142 AIRR and outcomes; gene matrices
      - 2.8 GB
    * - ``results``
-     - bulky manuscript result tables, same relative paths as the paper repository
+     - retained study outputs, including earlier analysis snapshots
      - 0.5 GB
 
 Local data storage
@@ -75,3 +76,30 @@ Software versions
 PyPI) to 5.9.2 on 18 November 2026; IGH Pgen was bit-identical on 3,000 donor
 junctions. Native tools on the cluster are pinned by SHA-256 in their installation
 receipts.
+
+
+Reproducing the paper and running the current software
+-------------------------------------------------------
+
+Record the software commit, frozen lockfile, dataset revision, input SHA-256
+values, external tool receipts, and the parameters and seeds that apply to the
+specific study stage. Use the paper's input receipts to select the relevant
+snapshot. The current lockfile pins the supported runtime for this checkout.
+For example, seqtree 1.3.4 is pinned here and the manuscript identifies seqtree
+1.1.0 in the scoring-model description and 1.3.4 for primary repertoire
+processing. Keep each producing version with its corresponding result.
+
+The study's primary repertoire uses independent UMI processing per library,
+ARDA annotation of each library and their qualified union, and observed
+sequences only. Retain native observation IDs and distinguish de novo calls
+from database-search calls. The observed Nextflow analysis takes prepared
+tables and an explicit error model. Its report records runtime versions and
+input and output SHA-256 digests. An exact paper rerun also needs the upstream
+assay files and stage-specific recipes. The companion manifest identifies
+processed inputs and retained results.
+
+The information rule uses at least 20 confirmed nats for the recombinant
+comparisons. The additional one-nat junction threshold is reported separately.
+The held-out source-removal and public-cohort clone rules operate on different
+evidence and retain their declared settings. Candidate membership, physical
+assay membership and membership in the residue background are independent.

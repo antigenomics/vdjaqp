@@ -1,5 +1,8 @@
 <p align="center">
-<img alt="VDJ-AQP logo: skull with branching antibody antlers, peptides and mass-spectrometry rays and peaks" src="assets/vdjaqp.png" width="320">
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="assets/vdjaqp.png">
+<img alt="VDJ-AQP logo: skull with branching antibody antlers, peptides and mass-spectrometry rays and peaks" src="assets/vdjaqp-light.png" width="320">
+</picture>
 </p>
 
 <h1 align="center">VDJ-guided Antibody Quantification from Proteomes</h1>
@@ -104,6 +107,16 @@ uv sync --frozen --extra data
 See the [data reference](https://docs.isalgo.dev/vdjaqp/data.html) for groups,
 authentication and pinning a dataset revision. This repository contains no
 private assay inputs or stakeholder provenance.
+
+## Reproduce an analysis
+
+Record the software commit, the companion dataset commit and the checksums of
+the candidate table, peptide table and error model. Use the publication's
+stage-specific versions, parameters and input receipts for exact reproduction.
+The current lockfile sets the supported runtime for this checkout. The generic
+Nextflow analysis scores prepared observations; the paper's cohort preparation,
+frozen decision rules and figure assembly also require their study-specific
+recipes. See the [reproducibility guide](https://docs.isalgo.dev/vdjaqp/data.html).
 
 ## Documentation and development
 
