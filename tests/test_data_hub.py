@@ -81,7 +81,7 @@ def test_manifest_rejects_invalid_metadata(tmp_path, content):
         data_hub.read_manifest(manifest)
 
 
-def _fake_hub(monkeypatch, snapshot):
+def _fake_hub(monkeypatch, snapshot, resolved_revision='a'*40):
     import sys
     import types
     revisions = []
@@ -92,7 +92,7 @@ def _fake_hub(monkeypatch, snapshot):
         revisions.append(revision)
         return str(snapshot)
     monkeypatch.setitem(sys.modules, 'huggingface_hub', types.SimpleNamespace(
-        HfApi=lambda: types.SimpleNamespace(dataset_info=lambda *a, **k: types.SimpleNamespace(sha='a'*40)),
+        HfApi=lambda: types.SimpleNamespace(dataset_info=lambda *a, **k: types.SimpleNamespace(sha=resolved_revision)),
         hf_hub_download=download, snapshot_download=snapshot_download))
     return revisions
 
@@ -294,3 +294,13 @@ def test_fetch_cannot_replace_held_lock_through_alias(tmp_path, monkeypatch, ali
     assert not (dest/'calibration/model.json').exists()
     with data_hub._destination_lock(dest, timeout=1):
         pass
+
+
+def test_fetch_rejects_unresolved_revision(tmp_path, monkeypatch):
+    snapshot = _snapshot(tmp_path)
+    downloads = _fake_hub(monkeypatch, snapshot, 'main')
+    dest = tmp_path / 'published'
+    with pytest.raises(ValueError, match='immutable commit'):
+        data_hub.fetch(['calibration'], dest)
+    assert downloads == []
+    assert not dest.exists()

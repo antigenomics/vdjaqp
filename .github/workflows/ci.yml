@@ -38,6 +38,7 @@ jobs:
           .venv/bin/python workflows/make_fixture.py tmp/ci-input
           nextflow run main.nf --samples tmp/ci-input/samples.csv --outdir tmp/ci-output --cpus 1
           .venv/bin/python - <<'PYTHON'
+          import hashlib
           import json
           from pathlib import Path
           import polars as pl
@@ -45,5 +46,10 @@ jobs:
           report = json.loads((root / 'report.json').read_text())
           assert report['candidates'] == report['peptides'] == 1
           assert report['truth_loaded'] is False
+          assert report['runtime']['seqtree']
+          outputs = report['outputs']
+          assert set(outputs) == {p.name for p in root.glob('*.parquet')}
+          for name, receipt in outputs.items():
+              assert receipt['sha256'] == hashlib.sha256((root / name).read_bytes()).hexdigest()
           assert pl.read_parquet(root / 'scores.parquet')['clone_id'].to_list() == ['c0']
           PYTHON

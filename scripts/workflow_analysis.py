@@ -1,9 +1,16 @@
 """Score observed tables with an explicit external model; truth is never loaded."""
 import argparse
 import hashlib
+from importlib.metadata import version
 import json
 from pathlib import Path
+import platform
 import time
+
+
+def sha256(path):
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
 def main():
@@ -57,11 +64,15 @@ def main():
     for name,frame in capture_tables(evidence,scores,references).items():
         frame.write_parquet(a.output/(name+'.parquet'),compression='zstd')
     evidence.match_counts().write_parquet(a.output/'match_counts.parquet', compression='zstd')
-    report = dict(producer=a.producer, cpus=cpus, candidates=clones.height,
+    runtime = {name: version(name) for name in ('vdjaqp', 'seqtree', 'numpy', 'polars')}
+    runtime['python'] = platform.python_version()
+    report = dict(runtime=runtime, producer=a.producer, cpus=cpus, candidates=clones.height,
                   peptides=peptides.height, alignments=evidence.matches.height,
                   seconds=time.perf_counter()-start, truth_loaded=False,
-                  inputs={name:dict(sha256=hashlib.sha256(path.read_bytes()).hexdigest())
-                          for name,path in [('candidates',a.candidates),('peptides',a.peptides),('model',a.model)]})
+                  inputs={name:dict(sha256=sha256(path))
+                          for name,path in [('candidates',a.candidates),('peptides',a.peptides),('model',a.model)]},
+                  outputs={path.name: dict(sha256=sha256(path))
+                           for path in sorted(a.output.glob('*.parquet'))})
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n')
 
 

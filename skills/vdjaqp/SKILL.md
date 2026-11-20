@@ -31,5 +31,10 @@ Verify software with the locked environment, pytest, the toy example and the
 warning-as-error docs build in `CONTRIBUTING.md`. For a data-free Nextflow check,
 create fresh inputs with `workflows/make_fixture.py`; its model is only a technical
 fixture. Software verification does not authorize scientific runs, controls,
-threshold changes or recalibration. Bootstrap companion data before readers;
+threshold changes or recalibration. For a paper rerun, retain the exact software
+commit, dataset revision, input hashes, model and study-specific rule. Apply
+the 20-confirmed-nat rule and the extra junction filter as separate comparisons;
+use the declared RNA-adjusted removal or clone rule for their respective studies.
+See `docs/data.rst` for published versus current runtime versions. Bootstrap
+companion data before readers;
 `vdjaqp-data` publication is per-file, not an atomic snapshot.
