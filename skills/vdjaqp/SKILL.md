@@ -45,3 +45,8 @@ all observed-analysis Parquet tables across both workflow engines.
 ```sh
 uvx --from snakemake==9.13.7 snakemake --cores 4 --config samples=samples.csv outdir=results/new-snakemake-analysis
 ```
+
+Choose ARDA RNA-seq geometry for fragmented RNA reads and amplicon geometry
+for AIRR libraries. For supported UMI-tagged AIRR libraries, assemble molecule
+consensus before annotation. See `examples/inputs` for the preparation
+worksheet, public tagged FASTQ and bundled mock peptide calls.

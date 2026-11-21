@@ -3,6 +3,13 @@ Pipeline branches
 
 Run from the repository root with Java 17–25 and Nextflow **25.10.2**. ``sh setup.sh`` recreates the minimal Python runtime from ``uv.lock`` (no optional simulator tools). A local Nextflow launcher can be downloaded from https://github.com/nextflow-io/nextflow/releases/download/v25.10.2/nextflow-25.10.2-dist and marked executable. No global Python installation is needed.
 
+.. figure:: _static/pipeline.svg
+   :alt: RNA-seq and AIRR-seq preparation converge on candidate sequences. Mass spectrometry contributes peptide calls. Together with the repertoire background and independent calibration they feed placement, competition and residue scoring.
+   :width: 100%
+
+   Input preparation and the shared scoring algorithm. The Graphviz source is
+   available as :download:`pipeline.dot <_static/pipeline.dot>`.
+
 Observed analysis
 -----------------
 

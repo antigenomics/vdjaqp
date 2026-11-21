@@ -1,5 +1,5 @@
 project = 'VDJ-AQP'
-extensions = ['sphinx.ext.githubpages']
+extensions = ['sphinx.ext.githubpages', 'sphinx.ext.mathjax']
 html_theme = 'pydata_sphinx_theme'
 exclude_patterns = ['_build', 'superpowers/**']
 

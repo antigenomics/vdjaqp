@@ -35,7 +35,7 @@ jobs:
           version: '25.10.2'
       - name: Data-free workflow integration
         run: |
-          .venv/bin/python workflows/make_fixture.py tmp/ci-input
+          .venv/bin/python workflows/make_fixture.py tmp/ci-input --mock-ms
           nextflow run main.nf --samples tmp/ci-input/samples.csv --outdir tmp/ci-output --cpus 1
           uvx --from snakemake==9.13.7 snakemake --cores 1 --config samples=tmp/ci-input/samples.csv outdir=tmp/ci-snakemake
           if uvx --from snakemake==9.13.7 snakemake --forceall --cores 1 --config samples=tmp/ci-input/samples.csv outdir=tmp/ci-snakemake; then
@@ -48,7 +48,8 @@ jobs:
           import polars as pl
           root = Path('tmp/ci-output/technical/analysis')
           report = json.loads((root / 'report.json').read_text())
-          assert report['candidates'] == report['peptides'] == 1
+          assert report['candidates'] == 1
+          assert report['peptides'] == 10_000
           assert report['truth_loaded'] is False
           assert report['runtime']['seqtree']
           outputs = report['outputs']
