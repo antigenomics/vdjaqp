@@ -1,0 +1,4 @@
+sample	library_type	read1	read2	molecule_protocol	ms_input
+rna_example	rnaseq	rna/R1.fastq.gz	rna/R2.fastq.gz		proteomics/rna_example.mzML
+airr_example	airrseq	airr/R1.fastq.gz	airr/R2.fastq.gz		proteomics/airr_example.mzML
+umi_example	airrseq_umi	umi/R1.fastq.gz	umi/R2.fastq.gz	umi/library-protocol.txt	proteomics/umi_example.mzML

@@ -19,7 +19,7 @@ It keeps compatible peptide placements, credited sequence evidence and accepted
 identities separate. Shared observations compete across candidates, residue
 evidence is bounded, and ambiguous identities remain explicit.
 
-The software is a Python package, runnable scripts and a Nextflow workflow.
+The software is a Python package, runnable scripts, a Nextflow workflow and a Snakemake route for observed analysis.
 [seqtree](https://github.com/antigenomics/seqtree) supplies peptide matching;
 [ARDA](https://github.com/antigenomics/arda) processes both amplicon and fragmented
 RNA sequencing geometries. [MIGEC](https://github.com/antigenomics/migec) provides
@@ -68,6 +68,25 @@ copy [`workflows/samples.example.csv`](workflows/samples.example.csv):
 nextflow run main.nf --samples samples.csv --outdir results/new-analysis
 ```
 
+### Choose the input workflow
+
+| Inputs | Before scoring |
+| --- | --- |
+| **RNA-seq + mass spectrometry** | Assemble and annotate fragmented RNA reads with ARDA in RNA-seq mode. |
+| **AIRR-seq + mass spectrometry** | Annotate amplicons with ARDA or prepare candidates from an existing annotated AIRR export. |
+| **AIRR-seq with UMIs + mass spectrometry** | Generate molecule consensus for the known library protocol with MIGEC, then annotate with ARDA in amplicon mode. |
+
+All three workflows score candidate and peptide-call Parquet tables with a
+calibrated error model. See [input examples](examples/inputs/README.md) and
+the [preparation guide](docs/preparation.rst) for formats and the offline fixture.
+
+Snakemake accepts the same sample sheet. Choose a fresh output directory.
+
+```sh
+uvx --from snakemake==9.13.7 snakemake --cores 4 --config samples=samples.csv outdir=results/new-snakemake-analysis
+```
+
+
 Output directories must be new. Caching and resume are disabled. The workflow
 retains calibration and source identities; scientific defaults are documented
 in the [parameter reference](https://docs.isalgo.dev/vdjaqp/parameters.html).
@@ -96,7 +115,7 @@ upstream steps and their provenance requirements.
 
 Companion inputs, calibration and retained results are maintained at
 [isalgo/igprotseq](https://huggingface.co/datasets/isalgo/igprotseq). Access rights
-and redistribution terms are separate from the software license. Downloads use
+and redistribution terms may be separate from the software license. Downloads use
 the dataset manifest and SHA-256 verification:
 
 ```sh

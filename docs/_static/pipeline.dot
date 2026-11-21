@@ -1,0 +1,35 @@
+digraph VDJ_AQP {
+    rankdir=TB;
+    graph [bgcolor=white, pad=0.2];
+    node [shape=box, style="rounded,filled", fillcolor="#edf4fa", fontname="sans-serif"];
+    edge [color="#546776"];
+    rna [label="Fragmented RNA-seq"];
+    airr [label="AIRR-seq"];
+    umi [label="AIRR-seq with UMIs"];
+    ms [label="Mass spectrometry"];
+    molecules [label="MIGEC molecule consensus"];
+    fragment [label="ARDA RNA-seq geometry"];
+    amplicon [label="ARDA amplicon geometry"];
+    search [label="Upstream peptide search"];
+    candidates [label="Observed candidate sequences"];
+    {rank=same; rna; airr; umi; ms}
+    rna -> fragment -> candidates;
+    airr -> amplicon -> candidates;
+    umi -> molecules -> amplicon;
+    ms -> search -> calls;
+    calls [label="Peptide calls and confidence"];
+    model [label="Independent error calibration"];
+    mapping [label="Batched seqtree placements"];
+    candidates -> mapping;
+    candidates -> background;
+    background [label="Contextual repertoire background"];
+    calls -> mapping;
+    mapping -> competition;
+    background -> competition;
+    model -> competition;
+    competition [label="Placement likelihoods\nand unassigned competition"];
+    competition -> confirmation;
+    confirmation [label="Bounded residue confirmation"];
+    confirmation -> output;
+    output [label="Total and junction evidence\nCapture and ambiguity tables"];
+}

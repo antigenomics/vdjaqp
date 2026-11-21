@@ -6,6 +6,39 @@ processing identifiers. Join modalities by a verified specimen key; where only
 condition-level matching exists, report that level explicitly. Preserve raw files,
 checksums, reference versions and complete commands separately from derived data.
 
+Choose the library route
+------------------------
+
+.. list-table::
+   :header-rows: 1
+
+   * - Inputs
+     - Preparation
+     - Recorded support
+   * - RNA-seq + mass spectrometry
+     - FASTQ (optionally gzip), with one or two mates. Assemble and annotate
+       antibody transcripts with ARDA in fragmented RNA-seq geometry.
+     - Original read or fragment support.
+   * - AIRR-seq + mass spectrometry
+     - Amplicon FASTQ (optionally gzip) for ARDA amplicon geometry, or an
+       annotated AIRR rearrangement TSV joined to its observed protein extents.
+     - Read counts when available.
+   * - AIRR-seq with UMIs + mass spectrometry
+     - Amplicon FASTQ (optionally gzip) and the library's barcode layout.
+       Build molecule consensuses with MIGEC for supported layouts, then use
+       ARDA amplicon geometry.
+     - Molecule counts, with read counts recorded separately.
+
+For each route, start with vendor MS files or converted mzML, and export the
+database-search or de novo peptide calls from the upstream search engine.
+Use the shared candidate and peptide Parquet contracts in :doc:`input-output`
+and the five-column CSV in :doc:`pipeline` to score with Nextflow or Snakemake.
+These scoring entry points start with prepared tables.
+
+:download:`Input worksheet <../examples/inputs/raw-inputs.tsv>` and
+:download:`prepared sample-sheet example <../workflows/samples.example.csv>`.
+The worksheet documents upstream inputs and is separate from the scoring CSV.
+
 Repertoire and molecule processing
 ----------------------------------
 

@@ -8,3 +8,4 @@ Understand the evidence model, attribution rules and scientific assumptions.
    :titlesonly:
 
    methods
+   scoring-math

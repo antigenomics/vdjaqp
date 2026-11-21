@@ -33,10 +33,14 @@ jobs:
       - uses: nf-core/setup-nextflow@v2
         with:
           version: '25.10.2'
-      - name: Data-free Nextflow end-to-end check
+      - name: Data-free workflow integration
         run: |
-          .venv/bin/python workflows/make_fixture.py tmp/ci-input
+          .venv/bin/python workflows/make_fixture.py tmp/ci-input --mock-ms
           nextflow run main.nf --samples tmp/ci-input/samples.csv --outdir tmp/ci-output --cpus 1
+          uvx --from snakemake==9.13.7 snakemake --cores 1 --config samples=tmp/ci-input/samples.csv outdir=tmp/ci-snakemake
+          if uvx --from snakemake==9.13.7 snakemake --forceall --cores 1 --config samples=tmp/ci-input/samples.csv outdir=tmp/ci-snakemake; then
+            exit 1
+          fi
           .venv/bin/python - <<'PYTHON'
           import hashlib
           import json
@@ -44,7 +48,8 @@ jobs:
           import polars as pl
           root = Path('tmp/ci-output/technical/analysis')
           report = json.loads((root / 'report.json').read_text())
-          assert report['candidates'] == report['peptides'] == 1
+          assert report['candidates'] == 1
+          assert report['peptides'] == 10_000
           assert report['truth_loaded'] is False
           assert report['runtime']['seqtree']
           outputs = report['outputs']
@@ -52,4 +57,14 @@ jobs:
           for name, receipt in outputs.items():
               assert receipt['sha256'] == hashlib.sha256((root / name).read_bytes()).hexdigest()
           assert pl.read_parquet(root / 'scores.parquet')['clone_id'].to_list() == ['c0']
+          other = Path('tmp/ci-snakemake/technical/analysis')
+          assert {p.name for p in other.glob('*.parquet')} == set(outputs)
+          other_report = json.loads((other / 'report.json').read_text())
+          for key in ('candidates', 'peptides', 'alignments', 'inputs', 'producer', 'truth_loaded'):
+              assert report[key] == other_report[key]
+          from polars.testing import assert_frame_equal
+          assert set(other_report['outputs']) == set(outputs)
+          for name, receipt in other_report['outputs'].items():
+              assert receipt['sha256'] == hashlib.sha256((other / name).read_bytes()).hexdigest()
+              assert_frame_equal(pl.read_parquet(root / name), pl.read_parquet(other / name), check_row_order=False)
           PYTHON

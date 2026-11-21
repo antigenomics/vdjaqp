@@ -1,6 +1,5 @@
 """Score observed tables with an explicit external model; truth is never loaded."""
 import argparse
-import hashlib
 from importlib.metadata import version
 import json
 from pathlib import Path
@@ -8,9 +7,7 @@ import platform
 import time
 
 
-def sha256(path):
-    with path.open('rb') as stream:
-        return hashlib.file_digest(stream, 'sha256').hexdigest()
+from vdjaqp.data_hub import sha256
 
 
 def main():

@@ -1,6 +1,29 @@
 Input and output contracts
 ==========================
 
+Observed scoring inputs
+=======================
+
+* **Candidates Parquet:** string columns ``clone_id`` (unique), ``seq``,
+  ``cdr3_seq``, ``v_name``, ``j_name``, ``c_name``; integer
+  ``cdr3_start`` and ``cdr3_end`` (zero-based half-open in ``seq``);
+  ``region_ids`` (one integer label per residue); and nonmissing Boolean
+  ``background_member``. The historical ``cdr3_seq`` field holds the
+  supplied anchored junction and must match its slice.
+* **Peptide calls Parquet:** ``peptide_id`` (stable spectrum and alternative
+  identity), ``seq`` (amino acids), ``local_confidence`` (one value per
+  residue), ``search_type``, ``alc``, ``alc_rank``, and ``n_reads``.
+  The last field counts peptide proposals and is unrelated to sequencing
+  support. See :doc:`pipeline` for the independent error-model JSON.
+* **Sample sheet CSV:** ``sample,candidates,peptides,producer,model``.
+  ``producer`` records the actual annotation provenance for any of the three
+  sequencing routes.
+
+The repository's ``workflows/make_fixture.py OUTPUT --mock-ms`` prepares an
+offline example with 10,000 distinct invented peptide observations from
+``examples/inputs/mock-ms.tsv.gz``. A public tagged FASTQ fixture in the
+same directory exercises the read format separately.
+
 Sequence-preserving AIRR-conditioned MS inputs
 ==============================================
 
