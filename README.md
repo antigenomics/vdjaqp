@@ -19,7 +19,7 @@ It keeps compatible peptide placements, credited sequence evidence and accepted
 identities separate. Shared observations compete across candidates, residue
 evidence is bounded, and ambiguous identities remain explicit.
 
-The software is a Python package, runnable scripts and a Nextflow workflow.
+The software is a Python package, runnable scripts, a Nextflow workflow and a Snakemake route for observed analysis.
 [seqtree](https://github.com/antigenomics/seqtree) supplies peptide matching;
 [ARDA](https://github.com/antigenomics/arda) processes both amplicon and fragmented
 RNA sequencing geometries. [MIGEC](https://github.com/antigenomics/migec) provides
@@ -67,6 +67,13 @@ copy [`workflows/samples.example.csv`](workflows/samples.example.csv):
 ```sh
 nextflow run main.nf --samples samples.csv --outdir results/new-analysis
 ```
+
+Snakemake accepts the same sample sheet. Choose a fresh output directory.
+
+```sh
+uvx --from snakemake==9.13.7 snakemake --cores 4 --config samples=samples.csv outdir=results/new-snakemake-analysis
+```
+
 
 Output directories must be new. Caching and resume are disabled. The workflow
 retains calibration and source identities; scientific defaults are documented

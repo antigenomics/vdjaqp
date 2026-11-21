@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 import time
 
+from vdjaqp.data_hub import sha256 as sha
+
 
 def export_mappings(evidence, output, query_catalog, *, query_role='identity_eligible'):
     """Retain seqtree placements independently of evidence/aggregation outputs."""
@@ -22,7 +24,6 @@ def export_mappings(evidence, output, query_catalog, *, query_role='identity_eli
     native.select('placement_id','mismatch_positions').explode('mismatch_positions',empty_as_null=True).drop_nulls('mismatch_positions').rename({'mismatch_positions':'peptide_offset'}).write_parquet(output/'substitutions.parquet',compression='zstd')
     evidence.clonotypes.select('clone_id','seq').write_parquet(output/'queries.parquet',compression='zstd')
     evidence.peptides.select('peptide_id','seq').write_parquet(output/'observations.parquet',compression='zstd')
-    sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     receipt=dict(status='complete',query_role=query_role,engine='seqtree.TextIndex via existing vdjaqp.match.PeptideMatcher',seqtree_version=importlib.metadata.version('seqtree'),query_catalog=str(query_catalog),query_catalog_sha256=sha(query_catalog),query_records=evidence.clonotypes.height,observations=evidence.peptides.height,placements=evidence.matches.height,contains_evidence_or_scores=False,coordinates='zero-based half-open in original query protein; substitution offsets relative to peptide; I/L mass equivalence preserved',artifact_sha256={path.name:sha(path) for path in sorted(output.glob('*.parquet'))})
     (output/'mapping_receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
     return receipt
@@ -93,7 +94,6 @@ def main():
     if a.case is not None:cases=[case for case in cases if case[0]==a.case]
     metrics=[];layers=[]
     repo=Path(__file__).resolve().parents[1]
-    sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     source={str(p.relative_to(repo)):sha(p) for p in [*sorted((repo/'vdjaqp').glob('*.py')),Path(__file__).resolve()]}
     raw={str(p.relative_to(a.input_root)):sha(p) for p in sorted(a.input_root.rglob('*')) if p.is_file() and (p.suffix=='.parquet' or p.name=='target_clonotypes.csv')}
     begun=time.perf_counter()
@@ -149,7 +149,7 @@ def main():
                 peptide_count=ev.peptides.height,alignment_count=ev.matches.height,
                 **classification_metrics(scores,positives)))
         pl.DataFrame(metrics).write_csv(a.output/'metrics.tsv',separator='\t')
-        case_report=dict(case=case,error_model_parameters=model_parameters,mapping_receipt_sha256=hashlib.sha256((mapping_path/'mapping_receipt.json').read_bytes()).hexdigest() if mapping is not None else None,error_model_sha256=model_sha256,candidates=ev.clonotypes.height,peptides=ev.peptides.height,alignments=ev.matches.height,unresolved_positional_context_residues=int((~ev.background.context_valid).sum()))
+        case_report=dict(case=case,error_model_parameters=model_parameters,mapping_receipt_sha256=sha(mapping_path/'mapping_receipt.json') if mapping is not None else None,error_model_sha256=model_sha256,candidates=ev.clonotypes.height,peptides=ev.peptides.height,alignments=ev.matches.height,unresolved_positional_context_residues=int((~ev.background.context_valid).sum()))
         mapping_peptides=ev.peptides.select('peptide_id','seq') if a.compatibility_queries is not None else None
         del ev,observed,scores,scorer,full_scores;gc.collect()
         if a.compatibility_queries is not None:

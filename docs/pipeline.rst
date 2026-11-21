@@ -16,6 +16,24 @@ The model JSON contains ``conf_x``, ``conf_e``, ``substitution`` (19×19, projec
 
 Each sample produces scores, matched-peptide counts, the six existing AIRR capture tables, and a compact JSON input hash/provenance/count record. Scientific accuracy requires a separate evaluation against truth; these technical outputs make no recovery or accuracy claim.
 
+Snakemake observed analysis
+---------------------------
+
+Run from the repository root with the same sample sheet and Python runtime.
+Relative paths resolve from the invocation directory. Choose a fresh output
+root each time. Each sample writes to OUTDIR/SAMPLE/analysis.
+
+.. code-block:: sh
+
+   uvx --from snakemake==9.13.7 snakemake --cores 4 \
+       --config samples=samples.csv outdir=results/new-snakemake-analysis
+
+Inside one Slurm allocation, pass its CPU count to --cores. For per-sample
+Slurm jobs, install the Slurm executor plugin in Snakemake's tool environment
+and use --executor slurm --jobs N with shared storage and site-specific settings.
+Each analysis job defaults to four cores, 4096 MB and 15 minutes. Override these
+with --set-threads and --set-resources. The modes below use Nextflow.
+
 Simulation
 ----------
 
@@ -24,9 +42,9 @@ Simulation
    nextflow run main.nf --mode simulate-airr --repertoire /absolute/candidates.parquet --panel /absolute/panel.csv --producer 'MiXCR export' --physical_scope all --outdir results/new-simulation
    nextflow run main.nf --mode synthetic --references /absolute/raw-reference-directory --outdir results/new-synthetic
 
-The first calls the established supplied-AIRR simulation: as-is proteins, separate proteases, MSSimulator → native search → peptide exports and existing coverage/recovery readouts. ``panel.csv`` requires exactly 12 distinct ``clone_id`` values identifying computationally inserted references (excluded from the background), not an arbitrary positive-target subset of genuinely observed background records. Physical scope (``all`` or ``panel``) never restricts the full observed search database. The synthetic technical route calls ``smoke_all.py``: GenAIRR, InSilicoSeq, fastp, **ARDA for both geometries**, then native MS/search/scoring. Generating truth stays separate from observed candidate FASTA. It is a small integration route, not the full parameter study or a new completed ARDA cohort. Install optional tools using the committed ``envs/{generation,preprocess,openms, arda}`` recipes before selecting these branches. Build the pinned ``MSSimulator-digestfix`` executable and activate the five-module ARDA overlay as documented there; defaults fail if the required native binary or map is absent. Current actual scheduled qualification is recorded in methods guide.
+The first calls the established supplied-AIRR simulation: as-is proteins, separate proteases, MSSimulator → native search → peptide exports and existing coverage/recovery readouts. ``panel.csv`` requires exactly 12 distinct ``clone_id`` values identifying computationally inserted references (excluded from the background), not an arbitrary positive-target subset of genuinely observed background records. Physical scope (``all`` or ``panel``) never restricts the full observed search database. The synthetic technical route calls ``smoke_all.py``: GenAIRR, InSilicoSeq, fastp, **ARDA for both geometries**, then native MS/search/scoring. Generating truth stays separate from observed candidate FASTA. It is a small integration route, not the full parameter study or a new completed ARDA cohort. Install optional tools using the committed ``envs/{generation,preprocess,openms,arda}`` recipes before selecting these branches. Build the pinned ``MSSimulator-digestfix`` executable and activate the five-module ARDA overlay as documented there; defaults fail if the required native binary or map is absent. Current actual scheduled qualification is recorded in methods guide.
 
-All modes disable task caching and reject resume and existing output roots. Use a fresh output directory; no deleted runtime is reused. ``--cpus N`` must be positive and is capped to available processors. Each process runs at most one task at a time; joint modes can run their two processes concurrently. 4 GB/15 min are scheduler declarations, **not enforced macOS memory limits**. Optional native stages also have their existing subprocess timeouts. Select a suitable executor/resource profile before large runs. The author-approved finite Aldan reproduction workload is specified in methods guide. Work directories under ``tmp/nextflow-work`` are transient. After verifying published final outputs remove that task-owned scratch; do not reuse it.
+All Nextflow modes disable task caching and reject resume and existing output roots. Use a fresh output directory; no deleted runtime is reused. ``--cpus N`` must be positive and is capped to available processors. Each process runs at most one task at a time; joint modes can run their two processes concurrently. 4 GB/15 min are scheduler declarations, **not enforced macOS memory limits**. Optional native stages also have their existing subprocess timeouts. Select a suitable executor/resource profile before large runs. The author-approved finite Aldan reproduction workload is specified in methods guide. Work directories under ``tmp/nextflow-work`` are transient. After verifying published final outputs remove that task-owned scratch; do not reuse it.
 
 Branch dispatch
 ---------------
@@ -60,20 +78,13 @@ Performance measurements for this change concern index construction, search and
 placement-table materialization. They do not measure end-to-end workflow speed,
 identification accuracy or sequence reconstruction.
 
-Reproducibility qualification
------------------------------
+Synthetic workflow check
+------------------------
 
-``workflows/qualification`` contains final-output comparison tables and source/hash
-receipts. Fixed-seed qualification compares complete table inventories and values,
-not merely a few headline endpoints; alternate seeds retain all existing aggregate
-deltas. CPU count is part of native read-generation/acquisition provenance.
-Logical decoded-read hashes distinguish compression metadata from sequence changes.
-No final-output comparator is a licence to reuse generated intermediate features.
-
-``workflows/acceptance`` retains the small software acceptance outputs. The fixture
-builder ``workflows/make_fixture.py`` creates invented one-candidate/one-peptide
-inputs. This acceptance is distinct from biological accuracy and native cohort
-qualification. Production candidates require independently calibrated error models.
+The fixture builder in the README creates invented one-candidate and one-peptide
+inputs. CI checks output inventories, receipt hashes and table values across
+Nextflow and Snakemake. Production candidates require independently calibrated
+error models.
 
 Joint execution commands
 ------------------------

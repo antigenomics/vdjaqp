@@ -1,4 +1,4 @@
-# Nextflow pipeline
+# Workflow entry points
 
 The entry point is `../main.nf`. See the [pipeline guide](../docs/pipeline.rst),
 [parameters](../docs/parameters.rst), [input/output contracts](../docs/input-output.rst)
@@ -11,3 +11,6 @@ belong in local configuration.
 
 Scientific acceptance records, manuscript scheduler receipts and recovery scripts
 are retained privately with the manuscript. The software tests use invented data.
+
+Snakemake also accepts the observed-analysis sample sheet. See the [pipeline
+guide](../docs/pipeline.rst) for the command and Slurm settings.
