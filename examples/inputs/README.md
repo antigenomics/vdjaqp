@@ -44,3 +44,16 @@ antibody MS acquisition.
 The bytes match the [isalgo/umi_data fixture](https://huggingface.co/datasets/isalgo/umi_data/tree/23363ad9e7a248b834f175b31c3eb25349a0bf23/ci),
 distributed upstream under [GPL-3.0](LICENSE.GPL-3.0). Upstream [source and selection recipe](https://huggingface.co/datasets/isalgo/umi_data/blob/23363ad9e7a248b834f175b31c3eb25349a0bf23/SOURCES.md).
 SHA-256: `f14e8ec7fb251297eadcf4bf49840dcfb14d09b039d1b0de46149aabc8514f58`.
+
+## AIRR Rearrangement example
+
+[rearrangements.tsv](rearrangements.tsv) contains an invented AIRR record.
+After making the offline MS fixture, append this line to
+`tmp/fixture/samples.csv` and run either engine with a fresh output root:
+
+```csv
+airr,examples/inputs/rearrangements.tsv,tmp/fixture/peptides.parquet,synthetic AIRR,tmp/fixture/model.json
+```
+
+Use the repository root as the invocation directory. The candidate field
+also accepts the same TSV compressed as `.tsv.gz`.

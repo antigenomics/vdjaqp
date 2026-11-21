@@ -22,6 +22,7 @@ def main():
     import numpy as np
     import polars as pl
     from vdjaqp.adapter import to_airr_compatible, from_airr_compatible
+    from vdjaqp.airr_rearrangement import read_rearrangements
     from vdjaqp.data import to_gene_level
     from vdjaqp.errormodel import ErrorModel
     from vdjaqp.pipeline import Evidence
@@ -29,8 +30,11 @@ def main():
     start = time.perf_counter()
     if a.output.exists():
         p.error('output must not exist')
-    clones = pl.read_parquet(a.candidates)
-    if 'background_member' not in clones.columns or clones['background_member'].null_count():
+    if a.candidates.name.lower().endswith((".tsv", ".tsv.gz")):
+        clones = read_rearrangements(a.candidates)
+    else:
+        clones = pl.read_parquet(a.candidates)
+    if 'background_member' not in clones.columns or clones['background_member'].dtype != pl.Boolean or clones['background_member'].null_count():
         p.error('explicit background_member is required; never infer from truth')
     clones = from_airr_compatible(to_airr_compatible(clones, source_format=a.producer))
     peptides = pl.read_parquet(a.peptides)

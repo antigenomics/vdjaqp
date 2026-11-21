@@ -23,10 +23,12 @@ __all__ = [
 #: The three mass-spec experiments. All share one repertoire.
 DATASETS = ("dataset_single_mabs", "dataset_mixa", "dataset_mixa_gel")
 
+UNANNOTATED_REGION = 9
+
 #: ``region_ids`` values, one per residue of a clonotype ``seq``.
 REGION_NAMES = {
     0: "FR1", 1: "CDR1", 2: "FR2", 3: "CDR2",
-    4: "FR3", 5: "CDR3", 6: "NDN", 7: "FR4", 8: "C",
+    4: "FR3", 5: "CDR3", 6: "NDN", 7: "FR4", 8: "C", UNANNOTATED_REGION: "unannotated",
 }
 
 

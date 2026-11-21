@@ -76,8 +76,9 @@ nextflow run main.nf --samples samples.csv --outdir results/new-analysis
 | **AIRR-seq + mass spectrometry** | Annotate amplicons with ARDA or prepare candidates from an existing annotated AIRR export. |
 | **AIRR-seq with UMIs + mass spectrometry** | Generate molecule consensus for the known library protocol with MIGEC, then annotate with ARDA in amplicon mode. |
 
-All three workflows score candidate and peptide-call Parquet tables with a
-calibrated error model. See [input examples](examples/inputs/README.md) and
+All three workflows score candidates and peptide-call Parquet with a calibrated
+error model. Use candidate Parquet or an [AIRR Rearrangement TSV](https://docs.airr-community.org/en/latest/datarep/rearrangements.html)
+(plain or gzipped) in the sample sheet. See [input examples](examples/inputs/README.md) and
 the [preparation guide](docs/preparation.rst) for formats and the offline fixture.
 
 Snakemake accepts the same sample sheet. Choose a fresh output directory.

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import polars as pl
 from .alphabet import N_AA, encode_frame
-from .data import to_gene_level
+from .data import UNANNOTATED_REGION, to_gene_level
 from .germline import aligned_columns, canonical_j, canonical_v, common_reference
 
 __all__ = ["Background"]
@@ -102,6 +102,7 @@ class Background:
                 (region == 7) & (j_match is None))
             if v_match is None or j_match is None:
                 unresolved |= (region == 5) & (block == 0)
+            unresolved |= (region == UNANNOTATED_REGION) & (block == 0)
             if unresolved.any():
                 key = ("U", "", -1)
                 if key not in cell_index:
