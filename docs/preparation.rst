@@ -31,7 +31,7 @@ Choose the library route
 
 For each route, start with vendor MS files or converted mzML, and export the
 database-search or de novo peptide calls from the upstream search engine.
-Use the shared candidate and peptide Parquet contracts in :doc:`input-output`
+Use the shared AIRR TSV or candidate Parquet and peptide Parquet contracts in :doc:`input-output`
 and the five-column CSV in :doc:`pipeline` to score with Nextflow or Snakemake.
 These scoring entry points start with prepared tables.
 

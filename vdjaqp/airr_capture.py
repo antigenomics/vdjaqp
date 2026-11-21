@@ -3,7 +3,7 @@ import numpy as np
 import polars as pl
 from .alphabet import encode_frame
 from .layout import expand_alignments
-from .data import to_gene_level,REGION_NAMES
+from .data import to_gene_level,REGION_NAMES,UNANNOTATED_REGION
 
 VIEWS=('all_compatible_alignments','positive_llr_alignments','identified_candidates_at20')
 
@@ -57,7 +57,7 @@ def capture_tables(evidence,scores,reference_ids,*,counts=None,count_unit=None,c
     junction_slots=jo[jc[clone_row[junction]]]+within[junction]-start[clone_row[junction]]
     junction_owner=np.repeat(np.arange(len(jl)),jl)
     records=[];gene_rows=[];junction_rows=[];ambiguity=[]
-    masks={'protein':np.ones(len(code),bool),**{name:region==k for k,name in REGION_NAMES.items()},'anchor_inclusive_junction':junction,'supplied_V_framework_proxy_0_to_4':region<=4,'supplied_J_FR4_proxy_7':region==7,'supplied_C_stub_proxy_8':region==8}
+    masks={'protein':np.ones(len(code),bool),**{name:region==k for k,name in REGION_NAMES.items() if k!=UNANNOTATED_REGION or (region==k).any()},'anchor_inclusive_junction':junction,'supplied_V_framework_proxy_0_to_4':region<=4,'supplied_J_FR4_proxy_7':region==7,'supplied_C_stub_proxy_8':region==8}
     if has_native:
         masks['CDR3']=np.where(native[clone_row],
             (within>start[clone_row])&(within<end[clone_row]-1),region==5)

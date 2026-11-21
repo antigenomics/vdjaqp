@@ -24,6 +24,38 @@ offline example with 10,000 distinct invented peptide observations from
 ``examples/inputs/mock-ms.tsv.gz``. A public tagged FASTQ fixture in the
 same directory exercises the read format separately.
 
+AIRR Rearrangement TSV candidates
+---------------------------------
+
+Both workflow engines accept ``.tsv`` and ``.tsv.gz`` in the sample sheet's
+``candidates`` column. The importer follows the
+`AIRR Rearrangement schema <https://docs.airr-community.org/en/latest/datarep/rearrangements.html>`__
+for field names and interval semantics. Use unique nonempty ``sequence_id``
+values, ``v_call`` and ``j_call`` columns (nullable), and a ``junction_aa`` column.
+Supply ``sequence_alignment_aa``, or a nucleotide ``sequence_alignment``
+containing a unique in-frame nucleotide ``junction``. The latter gives the
+translation phase; incomplete terminal codons are omitted. Alignment dots
+and dashes are removed. If ``junction_aa`` is empty, it is translated from
+the supplied in-frame nucleotide junction.
+
+``junction_aa`` must occur once in the observed protein. If present,
+``cdr3_aa`` must match its anchor-excluded interior. AIRR nucleotide CDR3
+coordinates exclude the anchors and use 1-based closed intervals. The
+scorer's junction coordinates include the anchors and are zero-based
+half-open. Optional framework and CDR1/2 amino-acid fields locate their
+regions. Unannotated residues use label 9; positions without resolvable
+context receive no information credit. Optional ``c_call`` names the gene
+without defining a constant-region extent. Invalid or ambiguous rows fail
+without filtering the input table.
+
+A plain AIRR export declares all rows to be background. For mixed roles,
+provide the ``background_member`` extension with ``T`` or ``F`` on each row.
+Keep AIRR counts in the original TSV for provenance. This route is unweighted.
+Junction-only inputs require an observed alignment before scoring.
+
+Download the :download:`synthetic Rearrangement TSV <../examples/inputs/rearrangements.tsv>`
+and use the same sample sheet and commands in :doc:`pipeline`.
+
 Sequence-preserving AIRR-conditioned MS inputs
 ==============================================
 

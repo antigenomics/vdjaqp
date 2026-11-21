@@ -31,7 +31,7 @@ def test_lossless_observed_sequence_roundtrip():
     {"region_ids": [[0]]}, {"cdr3_end": [6]}, {"cdr3_seq": [None]},
     {"clone_id": [None]}, {"cdr3_start": [-1]},
     {"region_ids": [[0, 0, 5, None, 6, 6, 7, 8, 8]]},
-    {"region_ids": [[0, 0, 5, 9, 6, 6, 7, 8, 8]]},
+    {"region_ids": [[0, 0, 5, 10, 6, 6, 7, 8, 8]]},
     {"clone_id": [""]},
 ])
 def test_rejects_incomplete_or_inconsistent_sequence_truth(change):

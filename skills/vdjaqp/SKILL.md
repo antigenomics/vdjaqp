@@ -50,3 +50,9 @@ Choose ARDA RNA-seq geometry for fragmented RNA reads and amplicon geometry
 for AIRR libraries. For supported UMI-tagged AIRR libraries, assemble molecule
 consensus before annotation. See `examples/inputs` for the preparation
 worksheet, public tagged FASTQ and bundled mock peptide calls.
+
+Both observed-analysis engines accept AIRR Rearrangement TSV or TSV.gz
+in the candidate column. Supply an observed aligned protein or a
+coding alignment and anchor-inclusive junction. For mixed background roles,
+supply `background_member` as `T` or `F` on each row. See the input contract and
+`examples/inputs/rearrangements.tsv`.

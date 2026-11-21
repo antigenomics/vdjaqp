@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import polars as pl
 
+from .data import REGION_NAMES
+
 __all__ = ["to_airr_compatible", "from_airr_compatible"]
 
 _NAMES = {
@@ -45,7 +47,7 @@ def _validate(frame: pl.DataFrame) -> None:
         pl.col("cdr3_end") > pl.col("seq").str.len_chars(),
         pl.col("region_ids").list.len() != pl.col("seq").str.len_chars(),
         pl.col("region_ids").list.eval(
-            pl.element().is_null() | ~pl.element().is_between(0, 8)
+            pl.element().is_null() | ~pl.element().is_in(list(REGION_NAMES))
         ).list.any(),
         pl.col("seq").str.slice(pl.col("cdr3_start"), pl.col("cdr3_end") - pl.col("cdr3_start")) != pl.col("cdr3_seq"),
         pl.col("cdr3_seq").is_null(),
