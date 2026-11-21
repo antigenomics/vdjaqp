@@ -37,6 +37,8 @@ jobs:
         run: |
           .venv/bin/python workflows/make_fixture.py tmp/ci-input --mock-ms
           printf 'airr,examples/inputs/rearrangements.tsv,%s/tmp/ci-input/peptides.parquet,synthetic AIRR,%s/tmp/ci-input/model.json\n' "$PWD" "$PWD" >> tmp/ci-input/samples.csv
+          gzip -n -c examples/inputs/rearrangements.tsv > tmp/ci-input/rearrangements.tsv.gz
+          printf 'airr_gzip,tmp/ci-input/rearrangements.tsv.gz,%s/tmp/ci-input/peptides.parquet,synthetic AIRR,%s/tmp/ci-input/model.json\n' "$PWD" "$PWD" >> tmp/ci-input/samples.csv
           nextflow run main.nf --samples tmp/ci-input/samples.csv --outdir tmp/ci-output --cpus 1
           uvx --from snakemake==9.13.7 snakemake --cores 1 --config samples=tmp/ci-input/samples.csv outdir=tmp/ci-snakemake
           if uvx --from snakemake==9.13.7 snakemake --forceall --cores 1 --config samples=tmp/ci-input/samples.csv outdir=tmp/ci-snakemake; then
@@ -47,14 +49,16 @@ jobs:
           import json
           from pathlib import Path
           import polars as pl
-          for sample in ('technical', 'airr'):
+          from polars.testing import assert_frame_equal
+          for sample in ('technical', 'airr', 'airr_gzip'):
               root = Path('tmp/ci-output') / sample / 'analysis'
               report = json.loads((root / 'report.json').read_text())
               assert report['candidates'] == 1
-              assert report['peptides'] == 10_000
+              assert report['peptides'] == report['alignments'] == 10_000
               assert report['truth_loaded'] is False
               assert report['runtime']['seqtree']
               outputs = report['outputs']
+              assert len(outputs) == 8
               assert set(outputs) == {p.name for p in root.glob('*.parquet')}
               for name, receipt in outputs.items():
                   assert receipt['sha256'] == hashlib.sha256((root / name).read_bytes()).hexdigest()
@@ -64,9 +68,14 @@ jobs:
               other_report = json.loads((other / 'report.json').read_text())
               for key in ('candidates', 'peptides', 'alignments', 'inputs', 'producer', 'truth_loaded'):
                   assert report[key] == other_report[key]
-              from polars.testing import assert_frame_equal
               assert set(other_report['outputs']) == set(outputs)
               for name, receipt in other_report['outputs'].items():
                   assert receipt['sha256'] == hashlib.sha256((other / name).read_bytes()).hexdigest()
-                  assert_frame_equal(pl.read_parquet(root / name), pl.read_parquet(other / name), check_row_order=False)
+                  expected = pl.read_parquet(root / name)
+                  assert_frame_equal(expected, pl.read_parquet(other / name),
+                                     check_row_order=False, check_exact=True)
+                  if sample == 'airr_gzip':
+                      plain = Path('tmp/ci-output/airr/analysis') / name
+                      assert_frame_equal(pl.read_parquet(plain), expected,
+                                         check_row_order=False, check_exact=True)
           PYTHON

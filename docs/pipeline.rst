@@ -88,10 +88,39 @@ identification accuracy or sequence reconstruction.
 Synthetic workflow check
 ------------------------
 
-The fixture builder in the README creates invented one-candidate and one-peptide
-inputs. CI checks output inventories, receipt hashes and table values across
-Nextflow and Snakemake. Production candidates require independently calibrated
-error models.
+The README's fixture builder prepares 10,000 invented peptide calls. CI
+scores them with both Nextflow and Snakemake against candidate Parquet,
+AIRR Rearrangement TSV and the same AIRR TSV compressed with gzip. It checks
+all eight output table schemas and values exactly, ignoring row order, and
+verifies file hashes against the run reports. Plain and gzipped AIRR inputs
+must also produce identical table values.
+
+Aldan3 verification
+~~~~~~~~~~~~~~~~~~~~
+
+VDJ-AQP 0.3.0 (commit c3b726d) passed the same plain and gzipped AIRR
+comparison with Snakemake 9.13.7 and Nextflow 25.10.2. Each run used four
+allocated cores and returned 10,000 alignments per input in both engines.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Execution
+     - Slurm job
+     - AIRR TSV
+     - AIRR TSV.gz
+   * - Batch (sbatch)
+     - 1534295
+     - 8 of 8 tables matched
+     - 8 of 8 tables matched
+   * - Direct compute-node run (srun)
+     - 1534294
+     - 8 of 8 tables matched
+     - 8 of 8 tables matched
+
+Both jobs verified receipt checksums and exact schema and value equality
+across engines and encodings, ignoring row order. The fixture tests workflow
+execution with an invented error model.
 
 Joint execution commands
 ------------------------
