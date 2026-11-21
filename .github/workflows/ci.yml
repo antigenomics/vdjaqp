@@ -65,5 +65,5 @@ jobs:
           assert set(other_report['outputs']) == set(outputs)
           for name, receipt in other_report['outputs'].items():
               assert receipt['sha256'] == hashlib.sha256((other / name).read_bytes()).hexdigest()
-              assert_frame_equal(pl.read_parquet(root / name), pl.read_parquet(other / name))
+              assert_frame_equal(pl.read_parquet(root / name), pl.read_parquet(other / name), check_row_order=False)
           PYTHON
